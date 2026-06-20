@@ -8,16 +8,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#07070f;--surface:#0f0f1a;--card:#13131f;--border:#1e1e30;--accent:#6c5ce7;--accent2:#00cec9;--red:#e17055;--text:#eeeef8;--muted:#6868a0}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
-.topbar-left{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;font-family:'Inter',sans-serif}
-.topbar h1{font-size:1rem;font-weight:700}
-.status{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+.app-shell{display:flex;height:100vh;width:100vw}
+
+/* SIDEBAR */
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .2s,opacity .2s}
+.sidebar.collapsed{width:0;border:none;overflow:hidden;opacity:0}
+.sidebar-header{display:flex;align-items:center;gap:10px;padding:18px 16px 14px}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.sidebar-header h1{font-size:1rem;font-weight:700}
+.new-chat-btn{margin:0 14px 12px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-size:.82rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif}
+.new-chat-btn:hover{border-color:var(--accent);color:var(--accent)}
+.chat-list{flex:1;overflow-y:auto;padding:0 8px}
+.chat-list::-webkit-scrollbar{width:4px}
+.chat-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.chat-item{padding:9px 10px;border-radius:8px;font-size:.78rem;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.chat-item:hover{background:var(--card);color:var(--text)}
+.chat-item.active{background:rgba(108,92,231,.16);color:var(--text)}
+.chat-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-item .del-btn{opacity:0;background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;flex-shrink:0}
+.chat-item:hover .del-btn{opacity:1}
+.empty-chats{padding:14px 12px;color:var(--muted);font-size:.76rem}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 16px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:.8rem;cursor:pointer;color:var(--text)}
+.nav-item:hover{background:var(--card)}
+.nav-item.disabled{opacity:.35;cursor:not-allowed}
+.nav-item .nav-label small{display:block;color:var(--muted);font-size:.66rem;font-weight:400;margin-top:1px}
+.user-row{display:flex;align-items:center;gap:10px;padding:14px 16px;font-size:.83rem;font-weight:600;border-top:1px solid var(--border)}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:800;color:#fff;flex-shrink:0}
+
+/* MAIN AREA */
+.main-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.main-header{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.main-header #currentChatTitle{flex:1;font-size:.84rem;font-weight:600;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted);flex-shrink:0}
 .dot{width:7px;height:7px;border-radius:50%;background:#00b894;box-shadow:0 0 6px #00b894;animation:pulse 2s infinite}
 .dot.busy{background:#fdcb6e;box-shadow:0 0 6px #fdcb6e}
 .dot.err{background:var(--red);box-shadow:0 0 6px var(--red);animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
 .chat-area::-webkit-scrollbar{width:4px}
 .chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
@@ -40,8 +69,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .dots span:nth-child(2){animation-delay:.2s}
 .dots span:nth-child(3){animation-delay:.4s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* HERO (empty new-chat state) */
+.hero-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.hero-logo{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;margin-bottom:16px}
+.hero-state h1{font-size:1.35rem;margin-bottom:6px}
+.hero-state p{color:var(--muted);font-size:.86rem;margin-bottom:22px}
+.hero-quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:480px}
+
 .bottom{padding:14px 20px 18px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0}
-.quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .qa-btn{background:var(--card);border:1px solid var(--border);border-radius:100px;color:var(--muted);padding:5px 14px;font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s}
 .qa-btn:hover{border-color:var(--accent);color:var(--accent)}
 .attach-preview{display:none;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px 12px;margin-bottom:10px;font-size:.8rem;color:var(--muted)}
@@ -58,50 +94,88 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .send-btn:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(108,92,231,.4)}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .hint{font-size:.72rem;color:var(--muted);text-align:center;margin-top:8px}
-.setup-card{max-width:480px;margin:60px auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center}
+
+.setup-card{max-width:480px;margin:auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center}
 .setup-card h2{font-size:1.1rem;margin-bottom:10px}
 .setup-card p{color:var(--muted);font-size:.85rem;line-height:1.6;margin-bottom:16px}
 .setup-card input{width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:monospace;font-size:.8rem;margin-bottom:12px}
 .setup-card button{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),#5a4adf);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;font-size:.9rem}
-.setup-card a{color:var(--accent2)}
+
+/* CONTACT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px;max-width:320px;text-align:center;position:relative}
+.modal-close{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+.discord-icon{width:54px;height:54px;border-radius:16px;background:#5865F2;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;color:#fff}
+.modal-box h2{font-size:1.05rem;margin-bottom:8px}
+.modal-box p{color:var(--muted);font-size:.82rem;margin-bottom:18px;line-height:1.5}
+.discord-btn{display:inline-block;background:#5865F2;color:#fff;padding:10px 26px;border-radius:10px;text-decoration:none;font-weight:600;font-size:.85rem}
+.discord-btn:hover{background:#4752c4}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="logo">W</div>
-    <h1>WolfAI</h1>
-  </div>
-  <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">W</div>
+      <h1>WolfAI</h1>
+    </div>
+    <button class="new-chat-btn" onclick="createNewChat()">＋ New chat</button>
+    <div class="chat-list" id="chatList"></div>
+    <div class="sidebar-divider"></div>
+    <div class="nav-item disabled" title="Coming soon">
+      <span>🔍</span>
+      <div class="nav-label"><b>Explore</b><small>In development</small></div>
+    </div>
+    <div class="nav-item disabled" title="Coming soon">
+      <span>🛠️</span>
+      <div class="nav-label"><b>Tools</b><small>In development</small></div>
+    </div>
+    <div class="nav-item" onclick="openContactModal()">
+      <span>💬</span>
+      <div class="nav-label"><b>Contact us</b></div>
+    </div>
+    <div class="user-row" id="userRow"></div>
+  </aside>
+
+  <main class="main-area">
+    <div class="main-header">
+      <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
+      <span id="currentChatTitle">New chat</span>
+      <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
+    </div>
+
+    <div class="chat-area" id="chatArea"></div>
+
+    <div class="bottom">
+      <div class="attach-preview" id="attachPreview"></div>
+      <div class="input-row">
+        <input type="file" id="fileInput" accept="image/*,.txt" style="display:none" onchange="handleFileSelect(event)">
+        <button class="icon-btn" id="attachBtn" onclick="document.getElementById('fileInput').click()" title="Attach a photo or text file">📎</button>
+        <textarea id="userInput" placeholder="Type a message or press 🎙 to speak..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="icon-btn" id="micBtn" onclick="toggleMic()">🎙</button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+      <p class="hint">Press Enter to send &nbsp;·&nbsp; Shift+Enter for new line &nbsp;·&nbsp; 🎙 voice &nbsp;·&nbsp; 📎 attach</p>
+    </div>
+  </main>
 </div>
-<div class="chat-area" id="chatArea"></div>
-<div class="bottom">
-  <div class="quick-actions">
-    <button class="qa-btn" onclick="quickSend('What can you do?')">💡 What can you do?</button>
-    <button class="qa-btn" onclick="quickSend('latest news today')">🔍 Latest news</button>
-    <button class="qa-btn" onclick="quickSend('tell me a joke')">😄 Joke</button>
-    <button class="qa-btn" onclick="quickSend('weather in colombo')">🌤️ Weather</button>
-    <button class="qa-btn" onclick="quickSend('open youtube')">▶️ YouTube</button>
+
+<div class="modal-overlay" id="contactModal" onclick="if(event.target===this) closeContactModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeContactModal()">✕</button>
+    <div class="discord-icon">🎮</div>
+    <h2>Join our Discord</h2>
+    <p>Got questions, feedback, or just want to hang out? Join the WolfAI community on Discord.</p>
+    <a class="discord-btn" href="https://discord.gg/56NSWnW2" target="_blank">Join Discord</a>
   </div>
-  <div class="attach-preview" id="attachPreview"></div>
-  <div class="input-row">
-    <input type="file" id="fileInput" accept="image/*,.txt" style="display:none" onchange="handleFileSelect(event)">
-    <button class="icon-btn" id="attachBtn" onclick="document.getElementById('fileInput').click()" title="Attach a photo or text file">📎</button>
-    <textarea id="userInput" placeholder="Type a message or press 🎙 to speak..." rows="1"
-      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-    <button class="icon-btn" id="micBtn" onclick="toggleMic()">🎙</button>
-    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
-  </div>
-  <p class="hint">Press Enter to send &nbsp;·&nbsp; Shift+Enter for new line &nbsp;·&nbsp; 🎙 voice &nbsp;·&nbsp; 📎 attach</p>
 </div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────
-// Cloudflare Worker proxy URL — keeps the real Gemini API key hidden server-side.
-// Paste your deployed worker URL here, e.g. "https://wolfai-proxy.yourname.workers.dev"
 const WORKER_URL = "https://broad-salad-8410.amiru12av.workers.dev";
-// Optional: Firebase Realtime Database URL, so the owner (wolfixe) can see who used this.
-// e.g. "https://your-project-default-rtdb.firebaseio.com"  — leave as-is to skip this feature.
 const FIREBASE_URL = "https://wolfai-5b255-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 const SYSTEM_PROMPT_BASE = `You are WolfAI, a friendly, genuinely intelligent personal AI assistant, created and developed by wolfixe.
@@ -121,6 +195,9 @@ let history = [];
 let listening = false;
 let recognition = null;
 let pendingAttachment = null;
+let chats = [];
+let currentChatId = null;
+let heroShowing = false;
 
 // ── MEMORY (localStorage) ──────────────────────────────────────
 function getMemories() {
@@ -138,7 +215,6 @@ function detectMemoryCommand(text) {
   if (m) return m[1].trim();
   return null;
 }
-
 function buildSystemPrompt() {
   const name = localStorage.getItem('wolfai_user_name');
   const mems = getMemories();
@@ -148,11 +224,101 @@ function buildSystemPrompt() {
   return prompt;
 }
 
+// ── CHAT SESSIONS (sidebar history) ──────────────────────────────
+function loadChats() { try { return JSON.parse(localStorage.getItem('wolfai_chats') || '[]'); } catch(e){ return []; } }
+function saveChatsToStorage() { localStorage.setItem('wolfai_chats', JSON.stringify(chats)); }
+
+function renderSidebarChats() {
+  const list = document.getElementById('chatList');
+  if (!chats.length) { list.innerHTML = `<div class="empty-chats">No chats yet — start one!</div>`; return; }
+  list.innerHTML = chats.map(c => `
+    <div class="chat-item ${c.id===currentChatId?'active':''}" onclick="switchChat('${c.id}')">
+      <span>${escHtml(c.title)}</span>
+      <button class="del-btn" onclick="event.stopPropagation();deleteChat('${c.id}')" title="Delete">✕</button>
+    </div>`).join('');
+}
+function renderUserRow() {
+  const name = localStorage.getItem('wolfai_user_name') || 'Guest';
+  document.getElementById('userRow').innerHTML = `
+    <div class="user-avatar">${escHtml(name[0].toUpperCase())}</div>
+    <span>${escHtml(name)}</span>`;
+}
+function createNewChat() {
+  currentChatId = null;
+  history = [];
+  showHeroState();
+  document.getElementById('currentChatTitle').textContent = 'New chat';
+  renderSidebarChats();
+}
+function showHeroState() {
+  heroShowing = true;
+  const name = localStorage.getItem('wolfai_user_name') || 'there';
+  document.getElementById('chatArea').innerHTML = `
+    <div class="hero-state">
+      <div class="hero-logo">W</div>
+      <h1>Welcome, ${escHtml(name)}!</h1>
+      <p>I'm WolfAI — ask me anything, in English or Sinhala.</p>
+      <div class="hero-quick">
+        <button class="qa-btn" onclick="quickSend('What can you do?')">💡 What can you do?</button>
+        <button class="qa-btn" onclick="quickSend('latest news today')">🔍 Latest news</button>
+        <button class="qa-btn" onclick="quickSend('tell me a joke')">😄 Joke</button>
+        <button class="qa-btn" onclick="quickSend('weather in colombo')">🌤️ Weather</button>
+        <button class="qa-btn" onclick="quickSend('open youtube')">▶️ YouTube</button>
+      </div>
+    </div>`;
+}
+function ensureChatPersisted(firstText) {
+  if (currentChatId) return;
+  const id = 'chat_' + Date.now();
+  let title = (firstText || 'New chat').trim();
+  title = title.length > 32 ? title.slice(0,32) + '…' : title;
+  chats.unshift({ id, title, apiHistory: [], displayLog: [], createdAt: Date.now() });
+  currentChatId = id;
+  saveChatsToStorage();
+  renderSidebarChats();
+  document.getElementById('currentChatTitle').textContent = title;
+}
+function getCurrentChat() { return chats.find(c => c.id === currentChatId); }
+function persistDisplay(role, html) {
+  const chat = getCurrentChat();
+  if (!chat) return;
+  chat.displayLog.push({ role, html });
+  chat.apiHistory = history;
+  saveChatsToStorage();
+}
+function switchChat(id) {
+  const chat = chats.find(c => c.id === id);
+  if (!chat) return;
+  currentChatId = id;
+  history = chat.apiHistory || [];
+  heroShowing = false;
+  document.getElementById('chatArea').innerHTML = '';
+  chat.displayLog.forEach(entry => addMsg(entry.role, entry.html));
+  document.getElementById('currentChatTitle').textContent = chat.title;
+  renderSidebarChats();
+}
+function deleteChat(id) {
+  chats = chats.filter(c => c.id !== id);
+  saveChatsToStorage();
+  if (currentChatId === id) createNewChat();
+  else renderSidebarChats();
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+// ── CONTACT MODAL ─────────────────────────────────────────────
+function openContactModal() { document.getElementById('contactModal').style.display = 'flex'; }
+function closeContactModal() { document.getElementById('contactModal').style.display = 'none'; }
+
 // ── INIT ────────────────────────────────────────────────────────
 window.onload = () => {
   if (WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE") { showKeySetupScreen(); return; }
+  chats = loadChats();
+  renderSidebarChats();
+  renderUserRow();
   const name = localStorage.getItem('wolfai_user_name');
-  if (!name) { showNameScreen(); } else { startChat(name); }
+  if (!name) { showNameScreen(); return; }
+  createNewChat();
+  setupSTT();
 };
 
 function showKeySetupScreen() {
@@ -179,11 +345,8 @@ function saveName() {
   if (!name) return;
   localStorage.setItem('wolfai_user_name', name);
   logUserToFirebase(name);
-  document.getElementById('chatArea').innerHTML = '';
-  startChat(name);
-}
-function startChat(name) {
-  addMsg('bot', `Welcome, <b>${escHtml(name)}</b>! I'm <b>WolfAI</b> — I understand pretty much anything, in English or Sinhala. Type, attach a photo 📎, or press 🎙 to speak!`);
+  renderUserRow();
+  createNewChat();
   setupSTT();
 }
 
@@ -257,21 +420,26 @@ async function sendMessage() {
   if (!text && !pendingAttachment) return;
   input.value = ''; autoResize(input);
 
-  // owner admin command
+  if (heroShowing) { heroShowing = false; document.getElementById('chatArea').innerHTML = ''; }
+
+  // owner admin command (not saved as a chat)
   if (/^(show users|show registered users|wolfai admin)$/i.test(text.trim())) {
     addMsg('user', escHtml(text));
     showRegisteredUsers();
     return;
   }
 
+  ensureChatPersisted(text || (pendingAttachment ? pendingAttachment.name : 'New chat'));
+
   // memory command (handled instantly, no AI call needed)
   const memFact = detectMemoryCommand(text);
   if (memFact && !pendingAttachment) {
-    addMsg('user', escHtml(text));
+    const userHtml = escHtml(text);
+    addMsg('user', userHtml); persistDisplay('user', userHtml);
     addMemory(memFact);
-    const reply = `Got it, I'll remember that: "${memFact}" 🧠`;
-    addMsg('bot', escHtml(reply));
-    speak(reply);
+    const replyHtml = escHtml(`Got it, I'll remember that: "${memFact}" 🧠`);
+    addMsg('bot', replyHtml); persistDisplay('bot', replyHtml);
+    speak(`Got it, I'll remember that.`);
     return;
   }
 
@@ -291,6 +459,7 @@ async function sendMessage() {
   }
 
   addMsg('user', displayHtml);
+  persistDisplay('user', displayHtml);
   history.push({ role:'user', parts });
   if (history.length > 20) history = history.slice(-20);
   clearAttachment();
@@ -306,7 +475,8 @@ async function sendMessage() {
     setStatus('Ready');
   } catch (err) {
     removeTyping(typingId);
-    addMsg('bot', `Sorry, I couldn't reach the AI right now. (${escHtml(err.message)})`);
+    const errHtml = `Sorry, I couldn't reach the AI right now. (${escHtml(err.message)})`;
+    addMsg('bot', errHtml); persistDisplay('bot', errHtml);
     setStatus('Error', 'err');
     setTimeout(() => setStatus('Ready'), 4000);
   }
@@ -344,14 +514,17 @@ function handleReply(raw) {
 
   history.push({ role:'model', parts:[{ text: raw }] });
 
+  let finalHtml;
   if (action?.action === 'search') {
     const url = `https://www.google.com/search?q=${encodeURIComponent(action.query)}`;
-    addMsg('bot', `${escHtml(reply)}<br><a class="search-chip" href="${url}" target="_blank">🔍 Open Google: "${escHtml(action.query)}"</a>`);
+    finalHtml = `${escHtml(reply)}<br><a class="search-chip" href="${url}" target="_blank">🔍 Open Google: "${escHtml(action.query)}"</a>`;
   } else if (action?.action === 'open') {
-    addMsg('bot', `${escHtml(reply)}<br><a class="search-chip" href="${action.url}" target="_blank">🌐 Open Link</a>`);
+    finalHtml = `${escHtml(reply)}<br><a class="search-chip" href="${action.url}" target="_blank">🌐 Open Link</a>`;
   } else {
-    addMsg('bot', escHtml(reply).replace(/\n/g,'<br>'));
+    finalHtml = escHtml(reply).replace(/\n/g,'<br>');
   }
+  addMsg('bot', finalHtml);
+  persistDisplay('bot', finalHtml);
   speak(stripTags(reply));
 }
 
