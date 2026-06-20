@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WolfAI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07070f;--surface:#0f0f1a;--card:#13131f;--border:#1e1e30;--accent:#6c5ce7;--accent2:#00cec9;--red:#e17055;--text:#eeeef8;--muted:#6868a0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;font-family:'Inter',sans-serif}
+.topbar h1{font-size:1rem;font-weight:700}
+.status{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:#00b894;box-shadow:0 0 6px #00b894;animation:pulse 2s infinite}
+.dot.busy{background:#fdcb6e;box-shadow:0 0 6px #fdcb6e}
+.dot.err{background:var(--red);box-shadow:0 0 6px var(--red);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.msg{display:flex;gap:10px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{flex-direction:row-reverse;align-self:flex-end;max-width:80%}
+.msg.bot{align-self:flex-start;max-width:80%}
+.avatar{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;margin-top:2px;color:#fff}
+.bot .avatar{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.user .avatar{background:var(--card);border:1px solid var(--border);color:var(--text);font-weight:600}
+.bubble{padding:10px 14px;border-radius:14px;font-size:.88rem;line-height:1.65}
+.bot .bubble{background:var(--card);border:1px solid var(--border);border-top-left-radius:4px}
+.user .bubble{background:linear-gradient(135deg,rgba(108,92,231,.22),rgba(0,206,201,.1));border:1px solid rgba(108,92,231,.3);border-top-right-radius:4px;text-align:right}
+.bubble img{max-width:220px;border-radius:10px;margin-top:6px;display:block}
+.bubble a{color:var(--accent2);text-decoration:none}
+.bubble a:hover{text-decoration:underline}
+.search-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(0,206,201,.1);border:1px solid rgba(0,206,201,.25);border-radius:8px;padding:7px 13px;color:var(--accent2);text-decoration:none;font-size:.8rem;margin-top:8px;transition:.15s}
+.search-chip:hover{background:rgba(0,206,201,.2)}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin:0 2px;animation:bounce 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.bottom{padding:14px 20px 18px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.qa-btn{background:var(--card);border:1px solid var(--border);border-radius:100px;color:var(--muted);padding:5px 14px;font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s}
+.qa-btn:hover{border-color:var(--accent);color:var(--accent)}
+.attach-preview{display:none;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px 12px;margin-bottom:10px;font-size:.8rem;color:var(--muted)}
+.attach-preview button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;margin-left:auto}
+.input-row{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 8px 8px 16px;transition:.2s}
+.input-row:focus-within{border-color:var(--accent)}
+#userInput{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;resize:none;height:24px;max-height:120px;overflow-y:auto;line-height:1.5}
+#userInput::placeholder{color:var(--muted)}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:.2s;flex-shrink:0}
+.icon-btn:hover{background:rgba(108,92,231,.2);color:var(--accent)}
+.icon-btn.listening{background:rgba(225,112,85,.2);color:var(--red);animation:mpulse 1s infinite}
+@keyframes mpulse{0%,100%{box-shadow:0 0 0 0 rgba(225,112,85,.4)}50%{box-shadow:0 0 0 8px rgba(225,112,85,0)}}
+.send-btn{width:36px;height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#5a4adf);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.2s;flex-shrink:0}
+.send-btn:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(108,92,231,.4)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.hint{font-size:.72rem;color:var(--muted);text-align:center;margin-top:8px}
+.setup-card{max-width:480px;margin:60px auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center}
+.setup-card h2{font-size:1.1rem;margin-bottom:10px}
+.setup-card p{color:var(--muted);font-size:.85rem;line-height:1.6;margin-bottom:16px}
+.setup-card input{width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:monospace;font-size:.8rem;margin-bottom:12px}
+.setup-card button{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),#5a4adf);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;font-size:.9rem}
+.setup-card a{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">W</div>
+    <h1>WolfAI</h1>
+  </div>
+  <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
+</div>
+<div class="chat-area" id="chatArea"></div>
+<div class="bottom">
+  <div class="quick-actions">
+    <button class="qa-btn" onclick="quickSend('What can you do?')">💡 What can you do?</button>
+    <button class="qa-btn" onclick="quickSend('latest news today')">🔍 Latest news</button>
+    <button class="qa-btn" onclick="quickSend('tell me a joke')">😄 Joke</button>
+    <button class="qa-btn" onclick="quickSend('weather in colombo')">🌤️ Weather</button>
+    <button class="qa-btn" onclick="quickSend('open youtube')">▶️ YouTube</button>
+  </div>
+  <div class="attach-preview" id="attachPreview"></div>
+  <div class="input-row">
+    <input type="file" id="fileInput" accept="image/*,.txt" style="display:none" onchange="handleFileSelect(event)">
+    <button class="icon-btn" id="attachBtn" onclick="document.getElementById('fileInput').click()" title="Attach a photo or text file">📎</button>
+    <textarea id="userInput" placeholder="Type a message or press 🎙 to speak..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="icon-btn" id="micBtn" onclick="toggleMic()">🎙</button>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+  <p class="hint">Press Enter to send &nbsp;·&nbsp; Shift+Enter for new line &nbsp;·&nbsp; 🎙 voice &nbsp;·&nbsp; 📎 attach</p>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+// Cloudflare Worker proxy URL — keeps the real Gemini API key hidden server-side.
+// Paste your deployed worker URL here, e.g. "https://wolfai-proxy.yourname.workers.dev"
+const WORKER_URL = "https://broad-salad-8410.amiru12av.workers.dev";
+// Optional: Firebase Realtime Database URL, so the owner (wolfixe) can see who used this.
+// e.g. "https://your-project-default-rtdb.firebaseio.com"  — leave as-is to skip this feature.
+const FIREBASE_URL = "https://wolfai-5b255-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+const SYSTEM_PROMPT_BASE = `You are WolfAI, a friendly, genuinely intelligent personal AI assistant, created and developed by wolfixe.
+If anyone asks who made you, who your creator/developer/owner is, or who built this assistant, answer "wolfixe" — never mention Gemini, Google, or any other AI provider/company as your creator. You are simply "WolfAI".
+If anyone asks about wolfixe (your creator), you can share: wolfixe enjoys watching anime — especially gritty, character-driven series like Vinland Saga, Demon Slayer, and Attack on Titan — and is into Minecraft modding/building and browser-based game development.
+You understand and respond naturally to ANY question or message — in English, Sinhala script, or Romanized Sinhala (Singlish). Always reply in the same language/style the user used.
+Keep replies conversational, warm, and reasonably concise (2-5 sentences unless more detail is clearly needed).
+You can see images the user attaches and answer questions about them.
+If the user wants to search the web or open a specific well-known website, respond ONLY with this exact JSON (nothing else, no markdown fences):
+{"action":"search","query":"<search terms>","reply":"<short spoken reply>"}
+or
+{"action":"open","url":"<full url like https://youtube.com>","reply":"<short spoken reply>"}
+For everything else, just reply normally in plain text — no JSON, no code fences.`;
+
+// ── STATE ───────────────────────────────────────────────────────
+let history = [];
+let listening = false;
+let recognition = null;
+let pendingAttachment = null;
+
+// ── MEMORY (localStorage) ──────────────────────────────────────
+function getMemories() {
+  try { return JSON.parse(localStorage.getItem('wolfai_memories') || '[]'); } catch(e){ return []; }
+}
+function addMemory(fact) {
+  const mems = getMemories();
+  mems.push(fact);
+  localStorage.setItem('wolfai_memories', JSON.stringify(mems.slice(-30)));
+}
+function detectMemoryCommand(text) {
+  let m = text.match(/^(?:please\s+)?(?:remember|note)(?:\s+that)?\s+(.+)/i);
+  if (m) return m[1].trim();
+  m = text.match(/^(?:මතක\s*තියාගන්න|mathaka\s+thiya(?:ganna)?)\s*[,:]?\s*(.+)/i);
+  if (m) return m[1].trim();
+  return null;
+}
+
+function buildSystemPrompt() {
+  const name = localStorage.getItem('wolfai_user_name');
+  const mems = getMemories();
+  let prompt = SYSTEM_PROMPT_BASE;
+  if (name) prompt += `\n\nThe person you're talking to is named "${name}". Address them by name naturally sometimes, but don't overdo it.`;
+  if (mems.length) prompt += `\n\nThings this user has asked you to remember:\n` + mems.map(m=>`- ${m}`).join('\n');
+  return prompt;
+}
+
+// ── INIT ────────────────────────────────────────────────────────
+window.onload = () => {
+  if (WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE") { showKeySetupScreen(); return; }
+  const name = localStorage.getItem('wolfai_user_name');
+  if (!name) { showNameScreen(); } else { startChat(name); }
+};
+
+function showKeySetupScreen() {
+  document.getElementById('chatArea').innerHTML = `
+    <div class="setup-card">
+      <h2>⚙️ Setup not finished yet</h2>
+      <p>The owner (wolfixe) needs to finish connecting the AI backend. Please check back soon!</p>
+    </div>`;
+}
+
+function showNameScreen() {
+  document.getElementById('chatArea').innerHTML = `
+    <div class="setup-card">
+      <div style="font-size:2rem;font-weight:800;margin-bottom:6px">W</div>
+      <h2>Welcome to WolfAI</h2>
+      <p>What should I call you?</p>
+      <input type="text" id="nameInput" placeholder="Your name" onkeydown="if(event.key==='Enter')saveName()">
+      <button onclick="saveName()">Continue</button>
+    </div>`;
+  setTimeout(() => document.getElementById('nameInput')?.focus(), 100);
+}
+function saveName() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return;
+  localStorage.setItem('wolfai_user_name', name);
+  logUserToFirebase(name);
+  document.getElementById('chatArea').innerHTML = '';
+  startChat(name);
+}
+function startChat(name) {
+  addMsg('bot', `Welcome, <b>${escHtml(name)}</b>! I'm <b>WolfAI</b> — I understand pretty much anything, in English or Sinhala. Type, attach a photo 📎, or press 🎙 to speak!`);
+  setupSTT();
+}
+
+// ── FIREBASE LOGGING (optional, owner-visible user list) ────────
+async function logUserToFirebase(name) {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  try {
+    const safeKey = name.replace(/[.#$\[\]\/\s]/g, '_').toLowerCase();
+    await fetch(`${FIREBASE_URL}/users/${encodeURIComponent(safeKey)}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, lastSeen: new Date().toISOString() })
+    });
+  } catch(e) { /* fail silently, non-critical */ }
+}
+async function showRegisteredUsers() {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) {
+    addMsg('bot', "The user-tracking database isn't set up yet, so I can't show that list.");
+    return;
+  }
+  try {
+    const res = await fetch(`${FIREBASE_URL}/users.json`);
+    const data = await res.json();
+    if (!data) { addMsg('bot', "No one's been logged yet."); return; }
+    const rows = Object.values(data).sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen));
+    const list = rows.map(u => `• ${escHtml(u.name)} <span style="color:var(--muted);font-size:.72rem">(${new Date(u.lastSeen).toLocaleString()})</span>`).join('<br>');
+    addMsg('bot', `<b>👥 People who've used WolfAI:</b><br>${list}`);
+  } catch(e) {
+    addMsg('bot', "Couldn't fetch the user list right now.");
+  }
+}
+
+// ── ATTACHMENTS ─────────────────────────────────────────────────
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      pendingAttachment = { type:'image', mimeType:file.type, base64:reader.result.split(',')[1], name:file.name, previewUrl:reader.result };
+      showAttachPreview(`🖼️ ${file.name}`);
+    };
+    reader.readAsDataURL(file);
+  } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      pendingAttachment = { type:'text', content:reader.result, name:file.name };
+      showAttachPreview(`📄 ${file.name}`);
+    };
+    reader.readAsText(file);
+  } else {
+    alert('Only images and .txt files are supported right now.');
+  }
+  e.target.value = '';
+}
+function showAttachPreview(label) {
+  const bar = document.getElementById('attachPreview');
+  bar.style.display = 'flex';
+  bar.innerHTML = `<span>${escHtml(label)}</span><button onclick="clearAttachment()">✕</button>`;
+}
+function clearAttachment() {
+  pendingAttachment = null;
+  const bar = document.getElementById('attachPreview');
+  bar.style.display = 'none'; bar.innerHTML = '';
+}
+
+// ── SEND ────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text  = input.value.trim();
+  if (!text && !pendingAttachment) return;
+  input.value = ''; autoResize(input);
+
+  // owner admin command
+  if (/^(show users|show registered users|wolfai admin)$/i.test(text.trim())) {
+    addMsg('user', escHtml(text));
+    showRegisteredUsers();
+    return;
+  }
+
+  // memory command (handled instantly, no AI call needed)
+  const memFact = detectMemoryCommand(text);
+  if (memFact && !pendingAttachment) {
+    addMsg('user', escHtml(text));
+    addMemory(memFact);
+    const reply = `Got it, I'll remember that: "${memFact}" 🧠`;
+    addMsg('bot', escHtml(reply));
+    speak(reply);
+    return;
+  }
+
+  // build display + API parts
+  let displayHtml = escHtml(text);
+  const parts = [];
+  let outgoingText = text;
+
+  if (pendingAttachment?.type === 'text') {
+    outgoingText += `\n\n[Attached document "${pendingAttachment.name}"]:\n${pendingAttachment.content}`;
+    displayHtml += `<br><span style="color:var(--muted);font-size:.78rem">📄 ${escHtml(pendingAttachment.name)}</span>`;
+  }
+  parts.push({ text: outgoingText || "Describe this image." });
+  if (pendingAttachment?.type === 'image') {
+    parts.push({ inlineData: { mimeType: pendingAttachment.mimeType, data: pendingAttachment.base64 } });
+    displayHtml += `<img src="${pendingAttachment.previewUrl}">`;
+  }
+
+  addMsg('user', displayHtml);
+  history.push({ role:'user', parts });
+  if (history.length > 20) history = history.slice(-20);
+  clearAttachment();
+
+  document.getElementById('sendBtn').disabled = true;
+  const typingId = addTyping();
+  setStatus('Thinking...', 'busy');
+
+  try {
+    const raw = await callGemini();
+    removeTyping(typingId);
+    handleReply(raw);
+    setStatus('Ready');
+  } catch (err) {
+    removeTyping(typingId);
+    addMsg('bot', `Sorry, I couldn't reach the AI right now. (${escHtml(err.message)})`);
+    setStatus('Error', 'err');
+    setTimeout(() => setStatus('Ready'), 4000);
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function quickSend(t) { document.getElementById('userInput').value = t; sendMessage(); }
+
+// ── AI CALL (via secure proxy — key never touches the browser) ──
+async function callGemini() {
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: history, systemInstruction: { parts:[{ text: buildSystemPrompt() }] } })
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody?.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!raw) throw new Error("Empty response");
+  return raw.trim();
+}
+
+function handleReply(raw) {
+  let reply = raw, action = null;
+  try {
+    const cleaned = raw.trim().replace(/```json|```/g,'').trim();
+    if (cleaned.startsWith('{')) {
+      const parsed = JSON.parse(cleaned);
+      if (parsed.action) { action = parsed; reply = parsed.reply || reply; }
+    }
+  } catch(e) {}
+
+  history.push({ role:'model', parts:[{ text: raw }] });
+
+  if (action?.action === 'search') {
+    const url = `https://www.google.com/search?q=${encodeURIComponent(action.query)}`;
+    addMsg('bot', `${escHtml(reply)}<br><a class="search-chip" href="${url}" target="_blank">🔍 Open Google: "${escHtml(action.query)}"</a>`);
+  } else if (action?.action === 'open') {
+    addMsg('bot', `${escHtml(reply)}<br><a class="search-chip" href="${action.url}" target="_blank">🌐 Open Link</a>`);
+  } else {
+    addMsg('bot', escHtml(reply).replace(/\n/g,'<br>'));
+  }
+  speak(stripTags(reply));
+}
+
+// ── SPEECH ──────────────────────────────────────────────────────
+function setupSTT() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onresult = e => { document.getElementById('userInput').value = e.results[0][0].transcript; stopListening(); sendMessage(); };
+  recognition.onerror = recognition.onend = () => stopListening();
+}
+function toggleMic() {
+  if (listening) { stopListening(); return; }
+  if (!recognition) { alert('Speech recognition not supported. Please use Chrome!'); return; }
+  listening = true; recognition.start();
+  const btn = document.getElementById('micBtn');
+  btn.classList.add('listening'); btn.textContent = '⏹';
+  document.getElementById('userInput').placeholder = 'Listening...';
+}
+function stopListening() {
+  listening = false;
+  try { if (recognition) recognition.stop(); } catch(e){}
+  const btn = document.getElementById('micBtn');
+  btn.classList.remove('listening'); btn.textContent = '🎙';
+  document.getElementById('userInput').placeholder = 'Type a message or press 🎙 to speak...';
+}
+
+let cachedVoices = [];
+function loadVoices() { cachedVoices = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; }
+if (window.speechSynthesis) { window.speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const hasSinhala = /[\u0D80-\u0DFF]/.test(text);
+  u.lang = hasSinhala ? 'si-LK' : 'en-US';
+  const siVoice = cachedVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('si'));
+  if (hasSinhala && siVoice) u.voice = siVoice;
+  u.rate = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+// ── UI ──────────────────────────────────────────────────────────
+function addMsg(role, html) {
+  const area = document.getElementById('chatArea');
+  const div  = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `<div class="avatar">${role==='bot'?'W':'🙂'}</div><div class="bubble">${html}</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+let typingCounter = 0;
+function addTyping() {
+  const id = 'typing-' + (++typingCounter);
+  const area = document.getElementById('chatArea');
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = id;
+  div.innerHTML = `<div class="avatar">W</div><div class="bubble"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  area.appendChild(div); area.scrollTop = area.scrollHeight;
+  return id;
+}
+function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+function setStatus(text, mode) {
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusDot').className = 'dot' + (mode === 'busy' ? ' busy' : mode === 'err' ? ' err' : '');
+}
+function autoResize(el){ el.style.height='24px'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function stripTags(t){ return t.replace(/<[^>]*>/g,''); }
+</script>
+</body>
+</html>
