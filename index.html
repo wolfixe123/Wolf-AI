@@ -142,9 +142,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .settings-action{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 4px;background:none;border:none;color:var(--text);font-size:.84rem;cursor:pointer;font-family:'Inter',sans-serif;border-radius:8px}
 .settings-action:hover{background:var(--surface)}
 .settings-action.danger{color:var(--red)}
+
+/* DEVICE MODE POPUP */
+.device-choice-btn{padding:14px 26px;border-radius:12px;border:none;font-weight:600;font-size:.9rem;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px}
+.device-choice-btn span{font-size:1.6rem}
+.device-choice-btn.pc{background:linear-gradient(135deg,var(--accent),#5a4adf)}
+.device-choice-btn.mobile{background:linear-gradient(135deg,var(--accent2),#00a89e)}
+
+/* MOBILE LAYOUT */
+body.mode-mobile .sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:78vw;max-width:280px;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 24px rgba(0,0,0,.5)}
+body.mode-mobile .sidebar.mobile-open{transform:translateX(0)}
+body.mode-mobile .main-header{padding:11px 14px}
+body.mode-mobile .chat-area{padding:14px}
+body.mode-mobile .bottom{padding:10px 14px 14px}
+body.mode-mobile .msg{max-width:90%}
+body.mode-mobile .hero-state h1{font-size:1.15rem}
+body.mode-mobile .hero-quick{max-width:100%}
+.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:39}
+body.mode-mobile .mobile-backdrop.show{display:block}
 </style>
 </head>
 <body>
+<div class="mobile-backdrop" id="mobileBackdrop" onclick="toggleSidebar()"></div>
 <div class="app-shell">
 
   <aside class="sidebar" id="sidebar">
@@ -248,14 +267,28 @@ or
 {"action":"open","url":"<full url like https://youtube.com>","reply":"<short spoken reply>"}
 For everything else, just reply normally in plain text — no JSON, no code fences.`;
 
-// ── WHITELIST / ROLES ─────────────────────────────────────────
+// ── WHITELIST / ROLES / BANS ──────────────────────────────────
 const OWNER_NAME = 'wolfixe123';
 const MODERATOR_NAMES = ['zenitsu', 'cenzo'];
+function toKey(name) { return (name || '').replace(/[.#$\[\]\/\s]/g, '_').toLowerCase(); }
 function getUserRole(name) {
   const n = (name || '').trim().toLowerCase();
   if (n === OWNER_NAME) return 'owner';
-  if (MODERATOR_NAMES.includes(n)) return 'moderator';
+  const key = toKey(name);
+  if (MODERATOR_NAMES.includes(n) || dynamicRoles[key] === 'moderator') return 'moderator';
   return null;
+}
+function isBanned(name) { return !!bannedKeys[toKey(name)]; }
+async function loadRolesAndBans() {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  try {
+    const [rolesRes, bansRes] = await Promise.all([
+      fetch(`${FIREBASE_URL}/roles.json`),
+      fetch(`${FIREBASE_URL}/bans.json`)
+    ]);
+    dynamicRoles = (await rolesRes.json()) || {};
+    bannedKeys = (await bansRes.json()) || {};
+  } catch(e) { /* non-critical */ }
 }
 
 // ── STATE ───────────────────────────────────────────────────────
@@ -268,6 +301,9 @@ let currentChatId = null;
 let heroShowing = false;
 let isSending = false;
 let modPollInterval = null;
+let deviceMode = 'pc';
+let dynamicRoles = {};
+let bannedKeys = {};
 
 // ── MEMORY (localStorage) ──────────────────────────────────────
 function getMemories() {
@@ -399,7 +435,15 @@ function deleteChat(id) {
   if (currentChatId === id) createNewChat();
   else renderSidebarChats();
 }
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  if (deviceMode === 'mobile') {
+    sb.classList.toggle('mobile-open');
+    document.getElementById('mobileBackdrop').classList.toggle('show');
+  } else {
+    sb.classList.toggle('collapsed');
+  }
+}
 
 // ── MODERATOR DASHBOARD ──────────────────────────────────────
 function showModeratorPanel() {
@@ -429,16 +473,62 @@ async function loadModeratorData() {
     return;
   }
   try {
+    await loadRolesAndBans();
     const res = await fetch(`${FIREBASE_URL}/users.json`);
     const data = await res.json();
-    const rows = data ? Object.values(data).sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen)) : [];
+    const rows = data ? Object.entries(data).map(([key,u]) => ({ key, ...u })).sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen)) : [];
     countEl.textContent = rows.length;
-    listEl.innerHTML = rows.length
-      ? rows.map(u => `<div class="mod-user-row"><span>${escHtml(u.name)}</span><small>${new Date(u.lastSeen).toLocaleString()}</small></div>`).join('')
-      : `<div class="mod-user-row" style="color:var(--muted)">No one's been logged yet.</div>`;
+    const viewerIsOwner = getUserRole(localStorage.getItem('wolfai_user_name')) === 'owner';
+
+    listEl.innerHTML = rows.length ? rows.map(u => {
+      const role = getUserRole(u.name);
+      const banned = isBanned(u.name);
+      const roleTag = role === 'owner' ? '👑' : role === 'moderator' ? '🛡️' : '';
+      let actions = '';
+      if (role !== 'owner') {
+        actions += banned
+          ? `<button class="settings-mini-btn" onclick="unbanUser('${u.key}')">Unban</button>`
+          : `<button class="settings-mini-btn" onclick="banUser('${u.key}')">Ban</button>`;
+        actions += `<button class="settings-mini-btn" onclick="removeUserRecord('${u.key}')">Remove</button>`;
+        if (viewerIsOwner) {
+          actions += role === 'moderator'
+            ? `<button class="settings-mini-btn" onclick="demoteModerator('${u.key}')">Demote</button>`
+            : `<button class="settings-mini-btn" onclick="promoteModerator('${u.key}')">Make Mod</button>`;
+        }
+      }
+      return `<div class="mod-user-row" style="flex-wrap:wrap;gap:6px">
+        <span>${escHtml(u.name)} ${roleTag}${banned ? ' 🚫' : ''}</span>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <small>${new Date(u.lastSeen).toLocaleString()}</small>
+          ${actions}
+        </div>
+      </div>`;
+    }).join('') : `<div class="mod-user-row" style="color:var(--muted)">No one's been logged yet.</div>`;
   } catch(e) {
     listEl.innerHTML = `<div class="mod-user-row" style="color:var(--muted)">Couldn't load data right now.</div>`;
   }
+}
+async function banUser(key) {
+  if (!confirm('Ban this person from using WolfAI?')) return;
+  await fetch(`${FIREBASE_URL}/bans/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:'true' });
+  loadModeratorData();
+}
+async function unbanUser(key) {
+  await fetch(`${FIREBASE_URL}/bans/${key}.json`, { method:'DELETE' });
+  loadModeratorData();
+}
+async function removeUserRecord(key) {
+  if (!confirm("Remove this person's registration entry? (Doesn't ban them, just clears the record.)")) return;
+  await fetch(`${FIREBASE_URL}/users/${key}.json`, { method:'DELETE' });
+  loadModeratorData();
+}
+async function promoteModerator(key) {
+  await fetch(`${FIREBASE_URL}/roles/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:'"moderator"' });
+  loadModeratorData();
+}
+async function demoteModerator(key) {
+  await fetch(`${FIREBASE_URL}/roles/${key}.json`, { method:'DELETE' });
+  loadModeratorData();
 }
 
 // ── CONTACT MODAL ─────────────────────────────────────────────
@@ -516,16 +606,54 @@ function resetEverything() {
 
 // ── INIT ────────────────────────────────────────────────────────
 window.onload = () => {
+  showDeviceModal();
+};
+
+function showDeviceModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.id = 'deviceModal';
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:300px">
+      <div style="font-size:1.8rem;font-weight:800;margin-bottom:4px">W</div>
+      <h2>How are you using WolfAI?</h2>
+      <p>This helps me size the layout right for your screen.</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:4px">
+        <button class="device-choice-btn pc" onclick="chooseDeviceMode('pc')"><span>🖥️</span>PC</button>
+        <button class="device-choice-btn mobile" onclick="chooseDeviceMode('mobile')"><span>📱</span>Mobile</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function chooseDeviceMode(mode) {
+  deviceMode = mode;
+  document.body.classList.toggle('mode-mobile', mode === 'mobile');
+  document.getElementById('deviceModal').remove();
+  initApp();
+}
+
+async function initApp() {
   if (WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE") { showKeySetupScreen(); return; }
   chats = loadChats();
+  await loadRolesAndBans();
   renderSidebarChats();
   renderUserRow();
   renderModNav();
   const name = localStorage.getItem('wolfai_user_name');
   if (!name) { showNameScreen(); return; }
+  if (isBanned(name)) { showBannedScreen(); return; }
   createNewChat();
   setupSTT();
-};
+}
+
+function showBannedScreen() {
+  document.getElementById('chatArea').innerHTML = `
+    <div class="setup-card">
+      <h2>🚫 Access restricted</h2>
+      <p>This account has been restricted from using WolfAI. If you think this is a mistake, reach out via Contact Us in the sidebar.</p>
+    </div>`;
+}
 
 function showKeySetupScreen() {
   document.getElementById('chatArea').innerHTML = `
@@ -546,11 +674,13 @@ function showNameScreen() {
     </div>`;
   setTimeout(() => document.getElementById('nameInput')?.focus(), 100);
 }
-function saveName() {
+async function saveName() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) return;
   localStorage.setItem('wolfai_user_name', name);
   logUserToFirebase(name);
+  await loadRolesAndBans();
+  if (isBanned(name)) { showBannedScreen(); return; }
   renderUserRow();
   renderModNav();
   createNewChat();
@@ -612,10 +742,18 @@ function handleFileSelect(e) {
 function showAttachPreview(label) {
   const bar = document.getElementById('attachPreview');
   bar.style.display = 'flex';
-  bar.innerHTML = `<span>${escHtml(label)}</span><button onclick="clearAttachment()">✕</button>`;
+  const isImage = pendingAttachment?.type === 'image';
+  bar.innerHTML = `
+    <span>${escHtml(label)}</span>
+    ${isImage ? `<label style="display:flex;align-items:center;gap:5px;font-size:.74rem;color:var(--muted);cursor:pointer;margin-left:6px">
+       <input type="checkbox" id="editModeToggle" onchange="editModeActive=this.checked" style="accent-color:var(--accent)">
+       ✏️ Edit this photo (instead of just describing it)
+     </label>` : ''}
+    <button onclick="clearAttachment()">✕</button>`;
 }
 function clearAttachment() {
   pendingAttachment = null;
+  editModeActive = false;
   const bar = document.getElementById('attachPreview');
   bar.style.display = 'none'; bar.innerHTML = '';
 }
