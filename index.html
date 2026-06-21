@@ -198,6 +198,7 @@ let pendingAttachment = null;
 let chats = [];
 let currentChatId = null;
 let heroShowing = false;
+let isSending = false;
 
 // ── MEMORY (localStorage) ──────────────────────────────────────
 function getMemories() {
@@ -415,9 +416,11 @@ function clearAttachment() {
 
 // ── SEND ────────────────────────────────────────────────────────
 async function sendMessage() {
+  if (isSending) return;
   const input = document.getElementById('userInput');
   const text  = input.value.trim();
   if (!text && !pendingAttachment) return;
+  isSending = true;
   input.value = ''; autoResize(input);
 
   if (heroShowing) { heroShowing = false; document.getElementById('chatArea').innerHTML = ''; }
@@ -426,6 +429,7 @@ async function sendMessage() {
   if (/^(show users|show registered users|wolfai admin)$/i.test(text.trim())) {
     addMsg('user', escHtml(text));
     showRegisteredUsers();
+    isSending = false;
     return;
   }
 
@@ -440,6 +444,7 @@ async function sendMessage() {
     const replyHtml = escHtml(`Got it, I'll remember that: "${memFact}" 🧠`);
     addMsg('bot', replyHtml); persistDisplay('bot', replyHtml);
     speak(`Got it, I'll remember that.`);
+    isSending = false;
     return;
   }
 
@@ -481,6 +486,7 @@ async function sendMessage() {
     setTimeout(() => setStatus('Ready'), 4000);
   }
   document.getElementById('sendBtn').disabled = false;
+  isSending = false;
 }
 
 function quickSend(t) { document.getElementById('userInput').value = t; sendMessage(); }
