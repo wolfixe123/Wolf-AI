@@ -824,7 +824,10 @@ async function sendMessage() {
     setStatus('Ready');
   } catch (err) {
     removeTyping(typingId);
-    const errHtml = `Sorry, I couldn't reach the AI right now. (${escHtml(err.message)})`;
+    const isQuota = /quota|rate.?limit|429/i.test(err.message || '');
+    const errHtml = isQuota
+      ? `I'm getting a lot of requests right now 😅 Please wait about 30 seconds and try again.`
+      : `Sorry, I couldn't reach the AI right now. (${escHtml(err.message)})`;
     addMsg('bot', errHtml); persistDisplay('bot', errHtml);
     setStatus('Error', 'err');
     setTimeout(() => setStatus('Ready'), 4000);
