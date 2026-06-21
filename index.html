@@ -36,6 +36,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .nav-item .nav-label small{display:block;color:var(--muted);font-size:.66rem;font-weight:400;margin-top:1px}
 .user-row{display:flex;align-items:center;gap:10px;padding:14px 16px;font-size:.83rem;font-weight:600;border-top:1px solid var(--border)}
 .user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:800;color:#fff;flex-shrink:0}
+.role-badge{font-size:.65rem;font-weight:600;padding:1px 7px;border-radius:100px;display:inline-block;width:fit-content}
+.role-badge.owner{background:rgba(253,203,110,.15);color:#fdcb6e}
+.role-badge.mod{background:rgba(0,206,201,.15);color:var(--accent2)}
+
+.mod-panel{max-width:640px;margin:0 auto;width:100%;padding:10px}
+.mod-panel h2{font-size:1.1rem;margin-bottom:18px}
+.mod-panel h3{font-size:.85rem;color:var(--muted);margin:20px 0 10px;font-weight:600}
+.mod-stats{display:flex;gap:12px;margin-bottom:8px}
+.mod-stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 22px;text-align:center}
+.mod-stat-num{font-size:1.6rem;font-weight:800;color:var(--accent2)}
+.mod-stat-label{font-size:.74rem;color:var(--muted);margin-top:2px}
+.mod-user-list{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.mod-user-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:.82rem;border-bottom:1px solid var(--border)}
+.mod-user-row:last-child{border-bottom:none}
+.mod-user-row small{color:var(--muted);font-size:.72rem}
 
 /* MAIN AREA */
 .main-area{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -136,6 +151,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
       <span>💬</span>
       <div class="nav-label"><b>Contact us</b></div>
     </div>
+    <div id="modNavSlot"></div>
     <div class="user-row" id="userRow"></div>
   </aside>
 
@@ -190,6 +206,16 @@ or
 {"action":"open","url":"<full url like https://youtube.com>","reply":"<short spoken reply>"}
 For everything else, just reply normally in plain text — no JSON, no code fences.`;
 
+// ── WHITELIST / ROLES ─────────────────────────────────────────
+const OWNER_NAME = 'wolfixe123';
+const MODERATOR_NAMES = ['zenitsu', 'cenzo'];
+function getUserRole(name) {
+  const n = (name || '').trim().toLowerCase();
+  if (n === OWNER_NAME) return 'owner';
+  if (MODERATOR_NAMES.includes(n)) return 'moderator';
+  return null;
+}
+
 // ── STATE ───────────────────────────────────────────────────────
 let history = [];
 let listening = false;
@@ -199,6 +225,7 @@ let chats = [];
 let currentChatId = null;
 let heroShowing = false;
 let isSending = false;
+let modPollInterval = null;
 
 // ── MEMORY (localStorage) ──────────────────────────────────────
 function getMemories() {
@@ -220,7 +247,12 @@ function buildSystemPrompt() {
   const name = localStorage.getItem('wolfai_user_name');
   const mems = getMemories();
   let prompt = SYSTEM_PROMPT_BASE;
-  if (name) prompt += `\n\nThe person you're talking to is named "${name}". Address them by name naturally sometimes, but don't overdo it.`;
+  if (name) {
+    prompt += `\n\nThe person you're talking to is named "${name}". Address them by name naturally sometimes, but don't overdo it.`;
+    const role = getUserRole(name);
+    if (role === 'owner') prompt += `\nThis person IS wolfixe, your creator and owner. You can acknowledge this naturally if it comes up.`;
+    else if (role === 'moderator') prompt += `\nThis person is a moderator of WolfAI, trusted by wolfixe. You can acknowledge this naturally if it comes up.`;
+  }
   if (mems.length) prompt += `\n\nThings this user has asked you to remember:\n` + mems.map(m=>`- ${m}`).join('\n');
   return prompt;
 }
@@ -240,11 +272,28 @@ function renderSidebarChats() {
 }
 function renderUserRow() {
   const name = localStorage.getItem('wolfai_user_name') || 'Guest';
+  const role = getUserRole(name);
+  const badge = role === 'owner' ? '<span class="role-badge owner">👑 Owner</span>'
+              : role === 'moderator' ? '<span class="role-badge mod">🛡️ Moderator</span>' : '';
   document.getElementById('userRow').innerHTML = `
     <div class="user-avatar">${escHtml(name[0].toUpperCase())}</div>
-    <span>${escHtml(name)}</span>`;
+    <div style="display:flex;flex-direction:column;gap:3px;overflow:hidden">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(name)}</span>${badge}
+    </div>`;
+}
+function renderModNav() {
+  const slot = document.getElementById('modNavSlot');
+  const name = localStorage.getItem('wolfai_user_name');
+  const role = getUserRole(name);
+  if (!role) { slot.innerHTML = ''; return; }
+  slot.innerHTML = `
+    <div class="nav-item" onclick="showModeratorPanel()">
+      <span>👮</span>
+      <div class="nav-label"><b>Moderators</b></div>
+    </div>`;
 }
 function createNewChat() {
+  if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
   currentChatId = null;
   history = [];
   showHeroState();
@@ -288,6 +337,7 @@ function persistDisplay(role, html) {
   saveChatsToStorage();
 }
 function switchChat(id) {
+  if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
   const chat = chats.find(c => c.id === id);
   if (!chat) return;
   currentChatId = id;
@@ -306,6 +356,46 @@ function deleteChat(id) {
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
 
+// ── MODERATOR DASHBOARD ──────────────────────────────────────
+function showModeratorPanel() {
+  if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
+  heroShowing = false;
+  currentChatId = null;
+  renderSidebarChats();
+  document.getElementById('currentChatTitle').textContent = 'Moderators';
+  document.getElementById('chatArea').innerHTML = `
+    <div class="mod-panel">
+      <h2>👮 Moderator Dashboard</h2>
+      <div class="mod-stats">
+        <div class="mod-stat-card"><div class="mod-stat-num" id="modUserCount">—</div><div class="mod-stat-label">Total people who've used WolfAI</div></div>
+      </div>
+      <h3>Recently active</h3>
+      <div id="modUserList" class="mod-user-list">Loading…</div>
+    </div>`;
+  loadModeratorData();
+  modPollInterval = setInterval(loadModeratorData, 8000);
+}
+async function loadModeratorData() {
+  const listEl = document.getElementById('modUserList');
+  const countEl = document.getElementById('modUserCount');
+  if (!listEl || !countEl) return;
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) {
+    listEl.innerHTML = `<div class="mod-user-row" style="color:var(--muted)">User-tracking database isn't connected.</div>`;
+    return;
+  }
+  try {
+    const res = await fetch(`${FIREBASE_URL}/users.json`);
+    const data = await res.json();
+    const rows = data ? Object.values(data).sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen)) : [];
+    countEl.textContent = rows.length;
+    listEl.innerHTML = rows.length
+      ? rows.map(u => `<div class="mod-user-row"><span>${escHtml(u.name)}</span><small>${new Date(u.lastSeen).toLocaleString()}</small></div>`).join('')
+      : `<div class="mod-user-row" style="color:var(--muted)">No one's been logged yet.</div>`;
+  } catch(e) {
+    listEl.innerHTML = `<div class="mod-user-row" style="color:var(--muted)">Couldn't load data right now.</div>`;
+  }
+}
+
 // ── CONTACT MODAL ─────────────────────────────────────────────
 function openContactModal() { document.getElementById('contactModal').style.display = 'flex'; }
 function closeContactModal() { document.getElementById('contactModal').style.display = 'none'; }
@@ -316,6 +406,7 @@ window.onload = () => {
   chats = loadChats();
   renderSidebarChats();
   renderUserRow();
+  renderModNav();
   const name = localStorage.getItem('wolfai_user_name');
   if (!name) { showNameScreen(); return; }
   createNewChat();
@@ -347,6 +438,7 @@ function saveName() {
   localStorage.setItem('wolfai_user_name', name);
   logUserToFirebase(name);
   renderUserRow();
+  renderModNav();
   createNewChat();
   setupSTT();
 }
