@@ -126,6 +126,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .modal-box p{color:var(--muted);font-size:.82rem;margin-bottom:18px;line-height:1.5}
 .discord-btn{display:inline-block;background:#5865F2;color:#fff;padding:10px 26px;border-radius:10px;text-decoration:none;font-weight:600;font-size:.85rem}
 .discord-btn:hover{background:#4752c4}
+
+/* SETTINGS MODAL */
+.settings-box{max-width:360px;text-align:left}
+.settings-box h2{text-align:center;margin-bottom:18px}
+.settings-avatar-row{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.settings-avatar-preview{width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.settings-avatar-preview img{width:100%;height:100%;object-fit:cover}
+.avatar-letter{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.settings-mini-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 12px;font-size:.76rem;cursor:pointer;font-family:'Inter',sans-serif}
+.settings-mini-btn:hover{border-color:var(--accent)}
+.settings-label{display:block;font-size:.76rem;color:var(--muted);margin-bottom:6px;font-weight:600}
+.settings-box input[type="text"]{width:100%;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;margin-bottom:10px}
+.settings-save-btn{width:100%;padding:9px;background:linear-gradient(135deg,var(--accent),#5a4adf);border:none;border-radius:9px;color:#fff;font-weight:600;cursor:pointer;font-size:.84rem;margin-bottom:16px}
+.settings-action{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 4px;background:none;border:none;color:var(--text);font-size:.84rem;cursor:pointer;font-family:'Inter',sans-serif;border-radius:8px}
+.settings-action:hover{background:var(--surface)}
+.settings-action.danger{color:var(--red)}
 </style>
 </head>
 <body>
@@ -186,6 +202,32 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
     <h2>Join our Discord</h2>
     <p>Got questions, feedback, or just want to hang out? Join the WolfAI community on Discord.</p>
     <a class="discord-btn" href="https://discord.gg/56NSWnW2" target="_blank">Join Discord</a>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal" onclick="if(event.target===this) closeSettingsModal()">
+  <div class="modal-box settings-box">
+    <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+    <h2>⚙️ Settings</h2>
+
+    <div class="settings-avatar-row">
+      <div class="settings-avatar-preview" id="avatarPreview"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarSelect(event)">
+        <button class="settings-mini-btn" onclick="document.getElementById('avatarInput').click()">Change photo</button>
+        <button class="settings-mini-btn" onclick="removeAvatar()">Remove</button>
+      </div>
+    </div>
+
+    <label class="settings-label">Your name</label>
+    <input type="text" id="settingsNameInput" placeholder="Your name">
+    <button class="settings-save-btn" onclick="saveSettingsName()">Save name</button>
+
+    <div class="sidebar-divider" style="margin:4px 0 8px"></div>
+
+    <button class="settings-action" onclick="shareWolfAI()">🔗 Share WolfAI</button>
+    <button class="settings-action" onclick="clearMyChats()">🗑️ Clear my chat history</button>
+    <button class="settings-action danger" onclick="resetEverything()">⚠️ Reset everything</button>
   </div>
 </div>
 
@@ -272,14 +314,17 @@ function renderSidebarChats() {
 }
 function renderUserRow() {
   const name = localStorage.getItem('wolfai_user_name') || 'Guest';
+  const avatar = localStorage.getItem('wolfai_avatar');
   const role = getUserRole(name);
   const badge = role === 'owner' ? '<span class="role-badge owner">👑 Owner</span>'
               : role === 'moderator' ? '<span class="role-badge mod">🛡️ Moderator</span>' : '';
+  const avatarHtml = avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : escHtml(name[0].toUpperCase());
   document.getElementById('userRow').innerHTML = `
-    <div class="user-avatar">${escHtml(name[0].toUpperCase())}</div>
-    <div style="display:flex;flex-direction:column;gap:3px;overflow:hidden">
+    <div class="user-avatar">${avatarHtml}</div>
+    <div style="display:flex;flex-direction:column;gap:3px;overflow:hidden;flex:1">
       <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(name)}</span>${badge}
-    </div>`;
+    </div>
+    <button class="icon-btn" style="width:28px;height:28px;font-size:13px" onclick="openSettingsModal()" title="Settings">⚙️</button>`;
 }
 function renderModNav() {
   const slot = document.getElementById('modNavSlot');
@@ -399,6 +444,75 @@ async function loadModeratorData() {
 // ── CONTACT MODAL ─────────────────────────────────────────────
 function openContactModal() { document.getElementById('contactModal').style.display = 'flex'; }
 function closeContactModal() { document.getElementById('contactModal').style.display = 'none'; }
+
+// ── SETTINGS MODAL ─────────────────────────────────────────────
+const SHARE_URL = 'https://wolfixe123.github.io/Wolf-AI/';
+
+function openSettingsModal() {
+  document.getElementById('settingsNameInput').value = localStorage.getItem('wolfai_user_name') || '';
+  renderAvatarPreview();
+  document.getElementById('settingsModal').style.display = 'flex';
+}
+function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
+
+function renderAvatarPreview() {
+  const avatar = localStorage.getItem('wolfai_avatar');
+  const name = localStorage.getItem('wolfai_user_name') || 'G';
+  const el = document.getElementById('avatarPreview');
+  el.innerHTML = avatar ? `<img src="${avatar}">` : `<div class="avatar-letter">${escHtml(name[0].toUpperCase())}</div>`;
+}
+function handleAvatarSelect(e) {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    localStorage.setItem('wolfai_avatar', reader.result);
+    renderAvatarPreview();
+    renderUserRow();
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+function removeAvatar() {
+  localStorage.removeItem('wolfai_avatar');
+  renderAvatarPreview();
+  renderUserRow();
+}
+function saveSettingsName() {
+  const newName = document.getElementById('settingsNameInput').value.trim();
+  if (!newName) return;
+  localStorage.setItem('wolfai_user_name', newName);
+  logUserToFirebase(newName);
+  renderUserRow();
+  renderModNav();
+  closeSettingsModal();
+  if (heroShowing) showHeroState();
+}
+function shareWolfAI() {
+  if (navigator.share) {
+    navigator.share({ title: 'WolfAI', text: 'Check out WolfAI — my personal AI assistant!', url: SHARE_URL }).catch(()=>{});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(SHARE_URL).then(() => alert('Link copied! Share it with your friends 🐺'));
+  } else {
+    prompt('Copy this link to share:', SHARE_URL);
+  }
+}
+function clearMyChats() {
+  if (!confirm("Delete all your saved chats? This can't be undone.")) return;
+  chats = [];
+  saveChatsToStorage();
+  closeSettingsModal();
+  createNewChat();
+}
+function resetEverything() {
+  if (!confirm('This will erase your name, chats, memories, and photo on this device. Continue?')) return;
+  localStorage.removeItem('wolfai_user_name');
+  localStorage.removeItem('wolfai_chats');
+  localStorage.removeItem('wolfai_memories');
+  localStorage.removeItem('wolfai_avatar');
+  closeSettingsModal();
+  location.reload();
+}
 
 // ── INIT ────────────────────────────────────────────────────────
 window.onload = () => {
@@ -674,7 +788,14 @@ function addMsg(role, html) {
   const area = document.getElementById('chatArea');
   const div  = document.createElement('div');
   div.className = `msg ${role}`;
-  div.innerHTML = `<div class="avatar">${role==='bot'?'W':'🙂'}</div><div class="bubble">${html}</div>`;
+  let avatarHtml;
+  if (role === 'bot') {
+    avatarHtml = 'W';
+  } else {
+    const avatar = localStorage.getItem('wolfai_avatar');
+    avatarHtml = avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">` : '🙂';
+  }
+  div.innerHTML = `<div class="avatar">${avatarHtml}</div><div class="bubble">${html}</div>`;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
 }
