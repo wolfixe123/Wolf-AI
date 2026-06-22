@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WolfAI</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#07070f;--surface:#0f0f1a;--card:#13131f;--border:#1e1e30;--accent:#6c5ce7;--accent2:#00cec9;--red:#e17055;--text:#eeeef8;--muted:#6868a0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
@@ -48,9 +48,63 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .mod-stat-num{font-size:1.6rem;font-weight:800;color:var(--accent2)}
 .mod-stat-label{font-size:.74rem;color:var(--muted);margin-top:2px}
 .mod-user-list{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.mod-user-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:.82rem;border-bottom:1px solid var(--border)}
+.mod-user-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:.82rem;border-bottom:1px solid var(--border);position:relative}
 .mod-user-row:last-child{border-bottom:none}
 .mod-user-row small{color:var(--muted);font-size:.72rem}
+
+.row-menu{display:none;flex-direction:column;gap:2px;position:absolute;right:14px;top:42px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:130px;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.row-menu.open{display:flex}
+.row-menu button{background:none;border:none;color:var(--text);text-align:left;padding:7px 10px;font-size:.78rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif}
+.row-menu button:hover{background:var(--card)}
+
+.mod-add-role{display:flex;gap:8px;margin-bottom:16px}
+.mod-add-role input{flex:1;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem}
+.mod-add-role button{padding:9px 16px;background:linear-gradient(135deg,var(--accent),#5a4adf);border:none;border-radius:9px;color:#fff;font-weight:600;cursor:pointer;font-size:.8rem;white-space:nowrap}
+.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.online-dot.on{background:#00b894;box-shadow:0 0 5px #00b894}
+.row-avatar{width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.perm-check-row{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted);margin-bottom:4px}
+
+/* LIGHT THEME */
+body.theme-light{
+  --bg:#f5f5fa;--surface:#ffffff;--card:#f0f0f7;--border:#e0e0ea;
+  --text:#1a1a2e;--muted:#6b6b85;
+}
+body.theme-light .bubble code,
+body.theme-light .copy-msg-btn{color:var(--muted)}
+
+/* TOOLS PANEL */
+.tools-panel{max-width:680px;margin:0 auto;width:100%;padding:10px}
+.tools-search-bar{width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;margin-bottom:12px;outline:none}
+.tools-search-bar:focus{border-color:var(--accent)}
+.tools-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.cat-chip{padding:5px 14px;border-radius:100px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.76rem;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s}
+.cat-chip:hover,.cat-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(108,92,231,.1)}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+.tool-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:.18s;position:relative}
+.tool-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.tool-card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+.tool-card-img img{width:100%;height:100%;object-fit:cover}
+.tool-card-body{padding:9px 10px}
+.tool-card-name{font-size:.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool-card-dev{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool-card-edit{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:7px;width:26px;height:26px;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center}
+.tool-card:hover .tool-card-edit{display:flex}
+
+/* V9 FEATURES */
+.msg-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.msg-action-btn{background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;padding:2px 0;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:3px}
+.msg-action-btn:hover{color:var(--accent2)}
+.suggestions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding-left:42px}
+.suggestion-chip{background:var(--card);border:1px solid var(--border);border-radius:100px;color:var(--muted);padding:5px 13px;font-size:.76rem;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;text-align:left}
+.suggestion-chip:hover{border-color:var(--accent);color:var(--accent)}
+.pinned-bar{background:rgba(108,92,231,.08);border-bottom:1px solid var(--border);padding:8px 16px;font-size:.76rem;color:var(--muted);display:none;align-items:center;gap:8px;cursor:pointer}
+.pinned-bar.has-pin{display:flex}
+.pinned-bar span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool-del-btn{background:rgba(225,112,85,.15);border:1px solid rgba(225,112,85,.3);color:var(--red);border-radius:7px;padding:5px 12px;font-size:.76rem;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px}
+.tool-del-btn:hover{background:rgba(225,112,85,.25)}
+.tool-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.tool-tag{font-size:.65rem;padding:1px 7px;border-radius:100px;background:rgba(108,92,231,.15);color:var(--accent)}
 
 /* MAIN AREA */
 .main-area{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -78,6 +132,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .bubble img{max-width:220px;border-radius:10px;margin-top:6px;display:block}
 .bubble a{color:var(--accent2);text-decoration:none}
 .bubble a:hover{text-decoration:underline}
+.bubble pre{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;overflow-x:auto;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+.bubble code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em}
+.bubble pre code{background:none;padding:0}
+.bubble ul,.bubble ol{margin:6px 0 6px 20px}
+.bubble li{margin-bottom:3px}
+.copy-msg-btn{display:block;margin-top:8px;background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;padding:0;font-family:'Inter',sans-serif}
+.copy-msg-btn:hover{color:var(--accent2)}
+.field-error{color:var(--red);font-size:.76rem;margin:-4px 0 10px;display:none;text-align:left}
 .search-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(0,206,201,.1);border:1px solid rgba(0,206,201,.25);border-radius:8px;padding:7px 13px;color:var(--accent2);text-decoration:none;font-size:.8rem;margin-top:8px;transition:.15s}
 .search-chip:hover{background:rgba(0,206,201,.2)}
 .dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin:0 2px;animation:bounce 1.2s infinite}
@@ -178,9 +240,9 @@ body.mode-mobile .mobile-backdrop.show{display:block}
       <span>🔍</span>
       <div class="nav-label"><b>Explore</b><small>In development</small></div>
     </div>
-    <div class="nav-item disabled" title="Coming soon">
+    <div class="nav-item" onclick="showToolsPanel()">
       <span>🛠️</span>
-      <div class="nav-label"><b>Tools</b><small>In development</small></div>
+      <div class="nav-label"><b>Tools</b></div>
     </div>
     <div class="nav-item" onclick="openContactModal()">
       <span>💬</span>
@@ -194,9 +256,12 @@ body.mode-mobile .mobile-backdrop.show{display:block}
     <div class="main-header">
       <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
       <span id="currentChatTitle">New chat</span>
+      <button class="icon-btn" style="width:28px;height:28px;font-size:13px" onclick="exportChat()" title="Export chat">💾</button>
       <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
     </div>
-
+    <div class="pinned-bar" id="pinnedBar" onclick="scrollToPin()">
+      📌 <span id="pinnedText"></span>
+    </div>
     <div class="chat-area" id="chatArea"></div>
 
     <div class="bottom">
@@ -218,9 +283,12 @@ body.mode-mobile .mobile-backdrop.show{display:block}
   <div class="modal-box">
     <button class="modal-close" onclick="closeContactModal()">✕</button>
     <div class="discord-icon">🎮</div>
-    <h2>Join our Discord</h2>
-    <p>Got questions, feedback, or just want to hang out? Join the WolfAI community on Discord.</p>
-    <a class="discord-btn" href="https://discord.gg/56NSWnW2" target="_blank">Join Discord</a>
+    <h2>Get in touch</h2>
+    <p>Got questions, feedback, or just want to hang out? Reach out on Discord or WhatsApp.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="discord-btn" href="https://discord.gg/56NSWnW2" target="_blank">Join Discord</a>
+      <a class="discord-btn" style="background:#25D366" href="https://whatsapp.com/channel/0029Vb84Ht8G8l5LQEmSiJ2W" target="_blank">WhatsApp</a>
+    </div>
   </div>
 </div>
 
@@ -244,9 +312,52 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 
     <div class="sidebar-divider" style="margin:4px 0 8px"></div>
 
+    <label class="perm-check-row" style="margin-bottom:14px">
+      <input type="checkbox" id="themeToggle" onchange="toggleTheme(this.checked)"> ☀️ Light theme
+    </label>
+
     <button class="settings-action" onclick="shareWolfAI()">🔗 Share WolfAI</button>
     <button class="settings-action" onclick="clearMyChats()">🗑️ Clear my chat history</button>
     <button class="settings-action danger" onclick="resetEverything()">⚠️ Reset everything</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="uploadToolModal" onclick="if(event.target===this)closeUploadToolModal()">
+  <div class="modal-box" style="max-width:480px;text-align:left;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeUploadToolModal()">✕</button>
+    <h2 style="text-align:center;margin-bottom:18px">📤 Upload your app here</h2>
+    <div style="display:flex;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div id="toolPhotoPreview" style="width:100px;height:100px;background:var(--surface);border:2px dashed var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:4px;font-size:.72rem;color:var(--muted);overflow:hidden" onclick="document.getElementById('toolPhotoInput').click()">
+          <span style="font-size:1.5rem">🖼️</span><span>Add Photo</span>
+        </div>
+        <input type="file" id="toolPhotoInput" accept="image/*" style="display:none" onchange="handleToolPhoto(event)">
+        <div id="toolFilePreview" style="width:100px;height:100px;background:var(--surface);border:2px dashed var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:4px;font-size:.72rem;color:var(--muted);text-align:center;padding:8px" onclick="document.getElementById('toolFileInput').click()">
+          <span style="font-size:1.5rem">📄</span><span>Add file (.html)</span>
+        </div>
+        <input type="file" id="toolFileInput" accept=".html" style="display:none" onchange="handleToolFile(event)">
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <label class="settings-label">App name</label>
+        <input type="text" id="toolNameInput" placeholder="e.g. Wordle Clone" style="margin-bottom:0">
+        <label class="settings-label">Developer</label>
+        <input type="text" id="toolDevInput" placeholder="Your name" style="margin-bottom:0">
+        <label class="settings-label">Tags</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="tagSelector">
+          <button class="cat-chip" data-tag="Action" onclick="toggleTagSelect(this)">Action</button>
+          <button class="cat-chip" data-tag="Adventure" onclick="toggleTagSelect(this)">Adventure</button>
+          <button class="cat-chip" data-tag="Horror" onclick="toggleTagSelect(this)">Horror</button>
+          <button class="cat-chip" data-tag="Sci-Fi" onclick="toggleTagSelect(this)">Sci-Fi</button>
+          <button class="cat-chip" data-tag="Puzzle" onclick="toggleTagSelect(this)">Puzzle</button>
+          <button class="cat-chip" data-tag="Other" onclick="toggleTagSelect(this)">Other</button>
+        </div>
+      </div>
+    </div>
+    <p class="field-error" id="uploadError" style="margin-top:10px"></p>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:14px">
+      <button class="settings-save-btn" style="margin:0;flex:1" onclick="submitToolUpload()">Upload</button>
+      <button class="tool-del-btn" id="toolDeleteBtn" style="display:none" onclick="deleteTool(editingToolKey)">🗑️ Delete</button>
+    </div>
   </div>
 </div>
 
@@ -261,6 +372,7 @@ If anyone asks about wolfixe (your creator), you can share: wolfixe enjoys watch
 You understand and respond naturally to ANY question or message — in English, Sinhala script, or Romanized Sinhala (Singlish). Always reply in the same language/style the user used.
 Keep replies conversational, warm, and reasonably concise (2-5 sentences unless more detail is clearly needed).
 You can see images the user attaches and answer questions about them.
+You can use light markdown formatting when it helps clarity: **bold**, \`inline code\`, \`\`\`code blocks\`\`\`, - bullet lists, 1. numbered lists, and [links](url). Don't overuse it — only when it genuinely makes the answer clearer.
 If the user wants to search the web or open a specific well-known website, respond ONLY with this exact JSON (nothing else, no markdown fences):
 {"action":"search","query":"<search terms>","reply":"<short spoken reply>"}
 or
@@ -290,6 +402,33 @@ async function loadRolesAndBans() {
     bannedKeys = (await bansRes.json()) || {};
   } catch(e) { /* non-critical */ }
 }
+async function loadCustomRoles() {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  try {
+    const [rRes, uRes] = await Promise.all([
+      fetch(`${FIREBASE_URL}/customRoles.json`),
+      fetch(`${FIREBASE_URL}/userCustomRoles.json`)
+    ]);
+    customRoles = (await rRes.json()) || {};
+    userCustomRoles = (await uRes.json()) || {};
+  } catch(e) { /* non-critical */ }
+}
+function userHasPermission(name, perm) {
+  const role = getUserRole(name);
+  if (role === 'owner') return true;
+  if (role === 'moderator' && perm === 'canViewModerators') return true;
+  const key = toKey(name);
+  const customKey = userCustomRoles[key];
+  if (customKey && customRoles[customKey] && customRoles[customKey][perm]) return true;
+  return false;
+}
+function startHeartbeat() {
+  if (heartbeatInterval) return;
+  heartbeatInterval = setInterval(() => {
+    const name = localStorage.getItem('wolfai_user_name');
+    if (name) logUserToFirebase(name);
+  }, 45000);
+}
 
 // ── STATE ───────────────────────────────────────────────────────
 let history = [];
@@ -304,6 +443,9 @@ let modPollInterval = null;
 let deviceMode = 'pc';
 let dynamicRoles = {};
 let bannedKeys = {};
+let customRoles = {};
+let userCustomRoles = {};
+let heartbeatInterval = null;
 
 // ── MEMORY (localStorage) ──────────────────────────────────────
 function getMemories() {
@@ -365,8 +507,7 @@ function renderUserRow() {
 function renderModNav() {
   const slot = document.getElementById('modNavSlot');
   const name = localStorage.getItem('wolfai_user_name');
-  const role = getUserRole(name);
-  if (!role) { slot.innerHTML = ''; return; }
+  if (!userHasPermission(name, 'canViewModerators')) { slot.innerHTML = ''; return; }
   slot.innerHTML = `
     <div class="nav-item" onclick="showModeratorPanel()">
       <span>👮</span>
@@ -377,6 +518,9 @@ function createNewChat() {
   if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
   currentChatId = null;
   history = [];
+  pinnedMsgId = null;
+  const pinnedBar = document.getElementById('pinnedBar');
+  if (pinnedBar) pinnedBar.classList.remove('has-pin');
   showHeroState();
   document.getElementById('currentChatTitle').textContent = 'New chat';
   renderSidebarChats();
@@ -452,17 +596,114 @@ function showModeratorPanel() {
   currentChatId = null;
   renderSidebarChats();
   document.getElementById('currentChatTitle').textContent = 'Moderators';
+  const viewerIsOwner = getUserRole(localStorage.getItem('wolfai_user_name')) === 'owner';
   document.getElementById('chatArea').innerHTML = `
     <div class="mod-panel">
       <h2>👮 Moderator Dashboard</h2>
       <div class="mod-stats">
         <div class="mod-stat-card"><div class="mod-stat-num" id="modUserCount">—</div><div class="mod-stat-label">Total people who've used WolfAI</div></div>
       </div>
+      ${viewerIsOwner ? `
+      <h3>+ Add a moderator</h3>
+      <div class="mod-add-role">
+        <input type="text" id="addRoleNameInput" placeholder="Friend's name (exact spelling)" onkeydown="if(event.key==='Enter')addModeratorByName()">
+        <button onclick="addModeratorByName()">+ Add</button>
+      </div>
+      <button class="settings-mini-btn" onclick="showRolesPanel()" style="margin-bottom:16px">🏷️ Manage custom roles</button>` : ''}
       <h3>Recently active</h3>
       <div id="modUserList" class="mod-user-list">Loading…</div>
     </div>`;
   loadModeratorData();
   modPollInterval = setInterval(loadModeratorData, 8000);
+}
+
+// ── CUSTOM ROLES PANEL ──────────────────────────────────────────
+function showRolesPanel() {
+  if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
+  heroShowing = false;
+  currentChatId = null;
+  document.getElementById('currentChatTitle').textContent = 'Manage Roles';
+  document.getElementById('chatArea').innerHTML = `
+    <div class="mod-panel">
+      <button class="settings-mini-btn" onclick="showModeratorPanel()">← Back to Dashboard</button>
+      <h2 style="margin-top:14px">🏷️ Manage Roles</h2>
+      <h3>Create a new role</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+        <input type="text" id="newRoleNameInput" placeholder="Role name (e.g. Best Friend)" class="mod-add-role-input">
+        <label class="perm-check-row"><input type="checkbox" id="newRolePermView"> Can view Moderator tab</label>
+        <button class="settings-save-btn" style="width:auto;align-self:flex-start;padding:9px 18px" onclick="createCustomRole()">+ Create role</button>
+      </div>
+      <h3>Existing roles</h3>
+      <div id="rolesList" class="mod-user-list">Loading…</div>
+    </div>`;
+  loadRolesPanelData();
+}
+async function createCustomRole() {
+  const nameInput = document.getElementById('newRoleNameInput');
+  const name = nameInput.value.trim();
+  if (!name) return;
+  const key = toKey(name);
+  const canView = document.getElementById('newRolePermView').checked;
+  await fetch(`${FIREBASE_URL}/customRoles/${key}.json`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ label: name, canViewModerators: canView })
+  });
+  nameInput.value = '';
+  document.getElementById('newRolePermView').checked = false;
+  loadRolesPanelData();
+}
+async function loadRolesPanelData() {
+  await loadCustomRoles();
+  const listEl = document.getElementById('rolesList');
+  const entries = Object.entries(customRoles);
+  listEl.innerHTML = entries.length ? entries.map(([key,r]) => `
+    <div class="mod-user-row">
+      <span>🏷️ ${escHtml(r.label)} ${r.canViewModerators ? '<small style="color:var(--accent2)">· Moderator tab</small>' : ''}</span>
+      <button class="settings-mini-btn" onclick="deleteCustomRole('${key}')">Delete</button>
+    </div>`).join('') : `<div class="mod-user-row" style="color:var(--muted)">No custom roles yet.</div>`;
+}
+async function deleteCustomRole(key) {
+  if (!confirm('Delete this role? Anyone assigned to it will lose its permissions.')) return;
+  await fetch(`${FIREBASE_URL}/customRoles/${key}.json`, { method:'DELETE' });
+  loadRolesPanelData();
+}
+async function openRolePicker(userKey) {
+  await loadCustomRoles();
+  const roleOptions = Object.entries(customRoles).map(([key,r]) =>
+    `<button class="settings-mini-btn" style="width:100%;text-align:left" onclick="assignCustomRole('${userKey}','${key}')">🏷️ ${escHtml(r.label)}</button>`).join('');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.id = 'rolePickerModal';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:260px;text-align:left">
+      <button class="modal-close" onclick="document.getElementById('rolePickerModal').remove()">✕</button>
+      <h2 style="text-align:center;margin-bottom:14px">Assign role</h2>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="settings-mini-btn" style="width:100%" onclick="assignCustomRole('${userKey}','')">None</button>
+        ${roleOptions || '<p style="color:var(--muted);font-size:.8rem;text-align:center">No custom roles created yet.</p>'}
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+async function assignCustomRole(userKey, roleKey) {
+  if (roleKey) {
+    await fetch(`${FIREBASE_URL}/userCustomRoles/${userKey}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(roleKey) });
+  } else {
+    await fetch(`${FIREBASE_URL}/userCustomRoles/${userKey}.json`, { method:'DELETE' });
+  }
+  document.getElementById('rolePickerModal')?.remove();
+  loadModeratorData();
+}
+async function addModeratorByName() {
+  const input = document.getElementById('addRoleNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const key = toKey(name);
+  await fetch(`${FIREBASE_URL}/roles/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:'"moderator"' });
+  input.value = '';
+  loadModeratorData();
 }
 async function loadModeratorData() {
   const listEl = document.getElementById('modUserList');
@@ -474,8 +715,13 @@ async function loadModeratorData() {
   }
   try {
     await loadRolesAndBans();
-    const res = await fetch(`${FIREBASE_URL}/users.json`);
-    const data = await res.json();
+    await loadCustomRoles();
+    const [usersRes, avatarsRes] = await Promise.all([
+      fetch(`${FIREBASE_URL}/users.json`),
+      fetch(`${FIREBASE_URL}/avatars.json`)
+    ]);
+    const data = await usersRes.json();
+    const avatars = (await avatarsRes.json()) || {};
     const rows = data ? Object.entries(data).map(([key,u]) => ({ key, ...u })).sort((a,b) => new Date(b.lastSeen) - new Date(a.lastSeen)) : [];
     countEl.textContent = rows.length;
     const viewerIsOwner = getUserRole(localStorage.getItem('wolfai_user_name')) === 'owner';
@@ -483,24 +729,36 @@ async function loadModeratorData() {
     listEl.innerHTML = rows.length ? rows.map(u => {
       const role = getUserRole(u.name);
       const banned = isBanned(u.name);
-      const roleTag = role === 'owner' ? '👑' : role === 'moderator' ? '🛡️' : '';
-      let actions = '';
+      const online = (Date.now() - new Date(u.lastSeen).getTime()) < 90000;
+      const customKey = userCustomRoles[u.key];
+      const customLabel = customKey && customRoles[customKey] ? customRoles[customKey].label : null;
+      const roleTag = role === 'owner' ? '👑' : role === 'moderator' ? '🛡️' : customLabel ? `🏷️ ${escHtml(customLabel)}` : '';
+      const avatarImg = avatars[u.key] ? `<img class="row-avatar" src="${avatars[u.key]}">` : '';
+      let menuItems = '';
       if (role !== 'owner') {
-        actions += banned
-          ? `<button class="settings-mini-btn" onclick="unbanUser('${u.key}')">Unban</button>`
-          : `<button class="settings-mini-btn" onclick="banUser('${u.key}')">Ban</button>`;
-        actions += `<button class="settings-mini-btn" onclick="removeUserRecord('${u.key}')">Remove</button>`;
+        menuItems += banned
+          ? `<button onclick="unbanUser('${u.key}');toggleRowMenu('${u.key}')">Unban</button>`
+          : `<button onclick="banUser('${u.key}');toggleRowMenu('${u.key}')">🚫 Ban</button>`;
+        menuItems += `<button onclick="removeUserRecord('${u.key}');toggleRowMenu('${u.key}')">🗑️ Remove</button>`;
         if (viewerIsOwner) {
-          actions += role === 'moderator'
-            ? `<button class="settings-mini-btn" onclick="demoteModerator('${u.key}')">Demote</button>`
-            : `<button class="settings-mini-btn" onclick="promoteModerator('${u.key}')">Make Mod</button>`;
+          menuItems += role === 'moderator'
+            ? `<button onclick="demoteModerator('${u.key}');toggleRowMenu('${u.key}')">Demote</button>`
+            : `<button onclick="promoteModerator('${u.key}');toggleRowMenu('${u.key}')">⭐ Make Mod</button>`;
+          menuItems += `<button onclick="openRolePicker('${u.key}');toggleRowMenu('${u.key}')">🏷️ Role</button>`;
         }
       }
-      return `<div class="mod-user-row" style="flex-wrap:wrap;gap:6px">
-        <span>${escHtml(u.name)} ${roleTag}${banned ? ' 🚫' : ''}</span>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      return `<div class="mod-user-row">
+        <span style="display:flex;align-items:center;gap:6px">
+          ${avatarImg}
+          <span class="online-dot ${online?'on':''}"></span>
+          ${escHtml(u.name)} ${roleTag}${banned ? ' 🚫' : ''}
+        </span>
+        <div style="display:flex;gap:8px;align-items:center">
           <small>${new Date(u.lastSeen).toLocaleString()}</small>
-          ${actions}
+          ${menuItems ? `
+            <button class="icon-btn" style="width:26px;height:26px;font-size:13px" onclick="toggleRowMenu('${u.key}')">⚙</button>
+            <div class="row-menu" id="rowMenu-${u.key}">${menuItems}</div>
+          ` : ''}
         </div>
       </div>`;
     }).join('') : `<div class="mod-user-row" style="color:var(--muted)">No one's been logged yet.</div>`;
@@ -508,6 +766,14 @@ async function loadModeratorData() {
     listEl.innerHTML = `<div class="mod-user-row" style="color:var(--muted)">Couldn't load data right now.</div>`;
   }
 }
+function toggleRowMenu(key) {
+  document.querySelectorAll('.row-menu.open').forEach(el => { if (el.id !== `rowMenu-${key}`) el.classList.remove('open'); });
+  document.getElementById(`rowMenu-${key}`)?.classList.toggle('open');
+}
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.row-menu') || e.target.closest('[onclick^="toggleRowMenu"]')) return;
+  document.querySelectorAll('.row-menu.open').forEach(el => el.classList.remove('open'));
+});
 async function banUser(key) {
   if (!confirm('Ban this person from using WolfAI?')) return;
   await fetch(`${FIREBASE_URL}/bans/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:'true' });
@@ -540,6 +806,8 @@ const SHARE_URL = 'https://wolfixe123.github.io/Wolf-AI/';
 
 function openSettingsModal() {
   document.getElementById('settingsNameInput').value = localStorage.getItem('wolfai_user_name') || '';
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) themeToggle.checked = document.body.classList.contains('theme-light');
   renderAvatarPreview();
   document.getElementById('settingsModal').style.display = 'flex';
 }
@@ -556,19 +824,46 @@ function handleAvatarSelect(e) {
   if (!file || !file.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = () => {
-    localStorage.setItem('wolfai_avatar', reader.result);
-    renderAvatarPreview();
-    renderUserRow();
+    const img = new Image();
+    img.onload = () => {
+      const size = 96;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const minSide = Math.min(img.width, img.height);
+      const sx = (img.width - minSide) / 2;
+      const sy = (img.height - minSide) / 2;
+      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      localStorage.setItem('wolfai_avatar', dataUrl);
+      renderAvatarPreview();
+      renderUserRow();
+      syncAvatarToFirebase(dataUrl);
+    };
+    img.src = reader.result;
   };
   reader.readAsDataURL(file);
   e.target.value = '';
 }
-function removeAvatar() {
+async function syncAvatarToFirebase(dataUrl) {
+  const name = localStorage.getItem('wolfai_user_name');
+  if (!name || !FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  try {
+    await fetch(`${FIREBASE_URL}/avatars/${toKey(name)}.json`, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(dataUrl)
+    });
+  } catch(e) { /* non-critical */ }
+}
+async function removeAvatar() {
   localStorage.removeItem('wolfai_avatar');
   renderAvatarPreview();
   renderUserRow();
+  const name = localStorage.getItem('wolfai_user_name');
+  if (name && FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    try { await fetch(`${FIREBASE_URL}/avatars/${toKey(name)}.json`, { method:'DELETE' }); } catch(e) {}
+  }
 }
-function saveSettingsName() {
+async function saveSettingsName() {
   const newName = document.getElementById('settingsNameInput').value.trim();
   if (!newName) return;
   localStorage.setItem('wolfai_user_name', newName);
@@ -637,6 +932,7 @@ async function initApp() {
   if (WORKER_URL === "PASTE_YOUR_WORKER_URL_HERE") { showKeySetupScreen(); return; }
   chats = loadChats();
   await loadRolesAndBans();
+  await loadCustomRoles();
   renderSidebarChats();
   renderUserRow();
   renderModNav();
@@ -645,6 +941,7 @@ async function initApp() {
   if (isBanned(name)) { showBannedScreen(); return; }
   createNewChat();
   setupSTT();
+  startHeartbeat();
 }
 
 function showBannedScreen() {
@@ -668,24 +965,58 @@ function showNameScreen() {
     <div class="setup-card">
       <div style="font-size:2rem;font-weight:800;margin-bottom:6px">W</div>
       <h2>Welcome to WolfAI</h2>
-      <p>What should I call you?</p>
-      <input type="text" id="nameInput" placeholder="Your name" onkeydown="if(event.key==='Enter')saveName()">
-      <button onclick="saveName()">Continue</button>
+      <p>Choose a name and password. First time using a name claims it with that password — use the same password next time to log in as the same person.</p>
+      <input type="text" id="nameInput" placeholder="Your name">
+      <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter')attemptLogin()">
+      <p class="field-error" id="loginError"></p>
+      <button onclick="attemptLogin()">Continue</button>
     </div>`;
   setTimeout(() => document.getElementById('nameInput')?.focus(), 100);
 }
-async function saveName() {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name) return;
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function attemptLogin() {
+  const name = document.getElementById('nameInput')?.value.trim();
+  const pass = document.getElementById('passwordInput')?.value.trim();
+  const errEl = document.getElementById('loginError');
+  if (!name || !pass) { errEl.textContent = 'Please enter both a name and a password.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  const key = toKey(name);
+  const hash = await sha256(pass + ':' + key);
+  await claimOrVerifyUsername(name, key, hash, errEl);
+}
+async function claimOrVerifyUsername(name, key, hash, errEl) {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) { completeLogin(name); return; }
+  try {
+    const res = await fetch(`${FIREBASE_URL}/credentials/${key}.json`);
+    const stored = await res.json();
+    if (!stored) {
+      await fetch(`${FIREBASE_URL}/credentials/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(hash) });
+      completeLogin(name);
+    } else if (stored === hash) {
+      completeLogin(name);
+    } else {
+      errEl.textContent = 'That name is already taken and the password is incorrect.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) { completeLogin(name); }
+}
+async function completeLogin(name) {
   localStorage.setItem('wolfai_user_name', name);
   logUserToFirebase(name);
   await loadRolesAndBans();
+  await loadCustomRoles();
   if (isBanned(name)) { showBannedScreen(); return; }
   renderUserRow();
   renderModNav();
   createNewChat();
   setupSTT();
+  startHeartbeat();
 }
+// keep saveName as alias for settings name-change (no password required for re-saves from settings — already authenticated)
+async function saveName() { await completeLogin(document.getElementById('nameInput')?.value.trim() || localStorage.getItem('wolfai_user_name')); }
 
 // ── FIREBASE LOGGING (optional, owner-visible user list) ────────
 async function logUserToFirebase(name) {
@@ -870,15 +1201,17 @@ function handleReply(raw) {
   let finalHtml;
   if (action?.action === 'search') {
     const url = `https://www.google.com/search?q=${encodeURIComponent(action.query)}`;
-    finalHtml = `${escHtml(reply)}<br><a class="search-chip" href="${url}" target="_blank">🔍 Open Google: "${escHtml(action.query)}"</a>`;
+    finalHtml = `${renderMarkdownLite(reply)}<br><a class="search-chip" href="${url}" target="_blank">🔍 Open Google: "${escHtml(action.query)}"</a>`;
   } else if (action?.action === 'open') {
-    finalHtml = `${escHtml(reply)}<br><a class="search-chip" href="${action.url}" target="_blank">🌐 Open Link</a>`;
+    finalHtml = `${renderMarkdownLite(reply)}<br><a class="search-chip" href="${action.url}" target="_blank">🌐 Open Link</a>`;
   } else {
-    finalHtml = escHtml(reply).replace(/\n/g,'<br>');
+    finalHtml = renderMarkdownLite(reply);
   }
   addMsg('bot', finalHtml);
   persistDisplay('bot', finalHtml);
   speak(stripTags(reply));
+  // suggested follow-ups (async, non-blocking)
+  addSuggestions(stripTags(reply));
 }
 
 // ── SPEECH ──────────────────────────────────────────────────────
@@ -925,10 +1258,15 @@ function speak(text) {
 }
 
 // ── UI ──────────────────────────────────────────────────────────
-function addMsg(role, html) {
+let pinnedMsgId = null;
+let msgCounter = 0;
+
+function addMsg(role, html, isReplay) {
   const area = document.getElementById('chatArea');
   const div  = document.createElement('div');
+  const msgId = 'msg_' + (++msgCounter);
   div.className = `msg ${role}`;
+  div.id = msgId;
   let avatarHtml;
   if (role === 'bot') {
     avatarHtml = 'W';
@@ -936,9 +1274,16 @@ function addMsg(role, html) {
     const avatar = localStorage.getItem('wolfai_avatar');
     avatarHtml = avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">` : '🙂';
   }
-  div.innerHTML = `<div class="avatar">${avatarHtml}</div><div class="bubble">${html}</div>`;
+  const actions = role === 'bot' ? `
+    <div class="msg-actions">
+      <button class="msg-action-btn" onclick="copyMsgText(this)">📋 Copy</button>
+      <button class="msg-action-btn" onclick="pinMsg('${msgId}',this)">📌 Pin</button>
+      <button class="msg-action-btn" onclick="regenerateMsg()">🔄 Regenerate</button>
+    </div>` : '';
+  div.innerHTML = `<div class="avatar">${avatarHtml}</div><div class="bubble">${html}${actions}</div>`;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
+  return msgId;
 }
 let typingCounter = 0;
 function addTyping() {
@@ -957,8 +1302,297 @@ function setStatus(text, mode) {
 }
 function autoResize(el){ el.style.height='24px'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
 function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }
+
+// ── TOOLS PANEL ────────────────────────────────────────────────
+let toolsData = {};
+let activeCategory = 'All';
+let toolPhotoData = null;
+let toolFileContent = null;
+let editingToolKey = null;
+
+function showToolsPanel() {
+  if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
+  heroShowing = false; currentChatId = null;
+  renderSidebarChats();
+  document.getElementById('currentChatTitle').textContent = 'Tools';
+  const canUpload = !!getUserRole(localStorage.getItem('wolfai_user_name'));
+  document.getElementById('chatArea').innerHTML = `
+    <div class="tools-panel">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+        <input class="tools-search-bar" style="margin-bottom:0;flex:1" id="toolSearch" placeholder="🔍 Search apps & games..." oninput="renderToolsGrid()">
+        ${canUpload ? `<button class="settings-save-btn" style="width:auto;padding:9px 16px;margin:0;white-space:nowrap" onclick="openUploadToolModal()">📤 Upload</button>` : ''}
+      </div>
+      <div class="tools-cats" id="toolsCats">
+        <button class="cat-chip active" data-cat="All" onclick="setToolCat(this)">All</button>
+        <button class="cat-chip" data-cat="Action" onclick="setToolCat(this)">Action</button>
+        <button class="cat-chip" data-cat="Adventure" onclick="setToolCat(this)">Adventure</button>
+        <button class="cat-chip" data-cat="Horror" onclick="setToolCat(this)">Horror</button>
+        <button class="cat-chip" data-cat="Sci-Fi" onclick="setToolCat(this)">Sci-Fi</button>
+        <button class="cat-chip" data-cat="Puzzle" onclick="setToolCat(this)">Puzzle</button>
+        <button class="cat-chip" data-cat="Other" onclick="setToolCat(this)">Other</button>
+      </div>
+      <div class="tools-grid" id="toolsGrid"><div style="color:var(--muted);font-size:.84rem">Loading…</div></div>
+    </div>`;
+  loadAndRenderTools();
+}
+async function loadAndRenderTools() {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) { renderToolsGrid(); return; }
+  try {
+    const res = await fetch(`${FIREBASE_URL}/tools.json`);
+    toolsData = (await res.json()) || {};
+  } catch(e) { toolsData = {}; }
+  renderToolsGrid();
+}
+function setToolCat(btn) {
+  document.querySelectorAll('.tools-cats .cat-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCategory = btn.dataset.cat;
+  renderToolsGrid();
+}
+function renderToolsGrid() {
+  const grid = document.getElementById('toolsGrid');
+  if (!grid) return;
+  const search = (document.getElementById('toolSearch')?.value || '').toLowerCase();
+  const myName = localStorage.getItem('wolfai_user_name');
+  const entries = Object.entries(toolsData).filter(([k,t]) => {
+    const matchCat = activeCategory === 'All' || (t.tags || []).includes(activeCategory);
+    const matchSearch = !search || t.name?.toLowerCase().includes(search) || t.developer?.toLowerCase().includes(search);
+    return matchCat && matchSearch;
+  });
+  if (!entries.length) { grid.innerHTML = `<div style="color:var(--muted);font-size:.84rem;grid-column:1/-1">No apps found.</div>`; return; }
+  grid.innerHTML = entries.map(([key,t]) => {
+    const isOwner = toKey(myName) === t.developerKey;
+    const imgHtml = t.photo ? `<img src="${t.photo}">` : `<span>🛠️</span>`;
+    const tags = (t.tags||[]).map(tag => `<span class="tool-tag">${escHtml(tag)}</span>`).join('');
+    return `
+      <div class="tool-card" onclick="openTool('${key}')">
+        <div class="tool-card-img">${imgHtml}</div>
+        ${isOwner ? `<button class="tool-card-edit" onclick="event.stopPropagation();openEditTool('${key}')" title="Edit">✏️</button>` : ''}
+        <div class="tool-card-body">
+          <div class="tool-card-name">${escHtml(t.name||'Unnamed')}</div>
+          <div class="tool-card-dev">${escHtml(t.developer||'')}</div>
+          <div class="tool-tags">${tags}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+function openTool(key) {
+  const t = toolsData[key];
+  if (!t?.fileContent) return;
+  const blob = new Blob([t.fileContent], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+}
+
+// Upload modal
+function openUploadToolModal(editKey) {
+  editingToolKey = editKey || null;
+  toolPhotoData = null; toolFileContent = null;
+  document.getElementById('toolNameInput').value = editKey ? (toolsData[editKey]?.name||'') : '';
+  document.getElementById('toolDevInput').value = editKey ? (toolsData[editKey]?.developer||'') : (localStorage.getItem('wolfai_user_name')||'');
+  document.getElementById('toolPhotoPreview').innerHTML = `<span style="font-size:1.5rem">🖼️</span><span>Add Photo</span>`;
+  document.getElementById('toolFilePreview').innerHTML = `<span style="font-size:1.5rem">📄</span><span>Add file (.html)</span>`;
+  document.querySelectorAll('#tagSelector .cat-chip').forEach(b => b.classList.remove('active'));
+  if (editKey && toolsData[editKey]?.tags) {
+    toolsData[editKey].tags.forEach(tag => {
+      document.querySelectorAll('#tagSelector .cat-chip').forEach(b => { if (b.dataset.tag === tag) b.classList.add('active'); });
+    });
+    toolPhotoData = toolsData[editKey].photo || null;
+    toolFileContent = toolsData[editKey].fileContent || null;
+  }
+  document.getElementById('uploadError').style.display = 'none';
+  document.getElementById('toolDeleteBtn').style.display = editKey ? 'block' : 'none';
+  document.getElementById('uploadToolModal').style.display = 'flex';
+}
+function openEditTool(key) { openUploadToolModal(key); }
+function closeUploadToolModal() { document.getElementById('uploadToolModal').style.display = 'none'; }
+function toggleTagSelect(btn) { btn.classList.toggle('active'); }
+function handleToolPhoto(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas'); canvas.width=160;canvas.height=160;
+      const ctx = canvas.getContext('2d');
+      const min = Math.min(img.width,img.height), sx=(img.width-min)/2, sy=(img.height-min)/2;
+      ctx.drawImage(img,sx,sy,min,min,0,0,160,160);
+      toolPhotoData = canvas.toDataURL('image/jpeg',0.85);
+      document.getElementById('toolPhotoPreview').innerHTML = `<img src="${toolPhotoData}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+    }; img.src = reader.result;
+  }; reader.readAsDataURL(file); e.target.value='';
+}
+function handleToolFile(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    toolFileContent = reader.result;
+    document.getElementById('toolFilePreview').innerHTML = `<span style="font-size:1.5rem">✅</span><span style="font-size:.65rem;word-break:break-all">${escHtml(file.name)}</span>`;
+  }; reader.readAsText(file); e.target.value='';
+}
+async function submitToolUpload() {
+  const name = document.getElementById('toolNameInput').value.trim();
+  const dev = document.getElementById('toolDevInput').value.trim();
+  const errEl = document.getElementById('uploadError');
+  if (!name) { errEl.textContent='Please enter an app name.'; errEl.style.display='block'; return; }
+  if (!toolFileContent && !editingToolKey) { errEl.textContent='Please add an HTML file.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const tags = [...document.querySelectorAll('#tagSelector .cat-chip.active')].map(b=>b.dataset.tag);
+  const key = editingToolKey || ('tool_' + Date.now());
+  const payload = {
+    name, developer: dev, developerKey: toKey(dev),
+    tags, photo: toolPhotoData || (editingToolKey ? toolsData[editingToolKey]?.photo : null),
+    fileContent: toolFileContent || (editingToolKey ? toolsData[editingToolKey]?.fileContent : null),
+    uploadedAt: new Date().toISOString()
+  };
+  if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    await fetch(`${FIREBASE_URL}/tools/${key}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+  }
+  toolsData[key] = payload;
+  closeUploadToolModal();
+  renderToolsGrid();
+}
+
+// ── THEME ───────────────────────────────────────────────────────
+if (localStorage.getItem('wolfai_theme') === 'light') document.body.classList.add('theme-light');
+function toggleTheme(isLight) {
+  document.body.classList.toggle('theme-light', isLight);
+  localStorage.setItem('wolfai_theme', isLight ? 'light' : 'dark');
+}
+
+// ── PIN MESSAGE ─────────────────────────────────────────────────
+function pinMsg(msgId, btn) {
+  const bubble = btn.closest('.bubble');
+  const clone = bubble.cloneNode(true);
+  clone.querySelectorAll('.msg-actions,.msg-action-btn').forEach(el => el.remove());
+  const text = (clone.innerText || clone.textContent || '').trim().slice(0, 120);
+  pinnedMsgId = msgId;
+  const bar = document.getElementById('pinnedBar');
+  document.getElementById('pinnedText').textContent = text + (text.length >= 120 ? '…' : '');
+  bar.classList.add('has-pin');
+  btn.textContent = '📌 Pinned';
+}
+function scrollToPin() {
+  if (!pinnedMsgId) return;
+  const el = document.getElementById(pinnedMsgId);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+// ── REGENERATE ──────────────────────────────────────────────────
+async function regenerateMsg() {
+  if (isSending) return;
+  if (!history.length) return;
+  // remove last bot turn from history to re-ask
+  const lastBotIdx = [...history].reverse().findIndex(h => h.role === 'model');
+  if (lastBotIdx < 0) return;
+  history.splice(history.length - 1 - lastBotIdx, 1);
+  isSending = true;
+  const typingId = addTyping();
+  setStatus('Regenerating...', 'busy');
+  document.getElementById('sendBtn').disabled = true;
+  try {
+    const raw = await callGemini();
+    removeTyping(typingId);
+    handleReply(raw);
+    setStatus('Ready');
+  } catch(err) {
+    removeTyping(typingId);
+    const isQuota = /quota|rate.?limit|429/i.test(err.message || '');
+    addMsg('bot', isQuota ? `I'm getting a lot of requests right now 😅 Please wait about 30 seconds and try again.` : `Sorry, I couldn't reach the AI right now. (${escHtml(err.message)})`);
+    setStatus('Error', 'err');
+    setTimeout(() => setStatus('Ready'), 4000);
+  }
+  document.getElementById('sendBtn').disabled = false;
+  isSending = false;
+}
+
+// ── EXPORT CHAT ─────────────────────────────────────────────────
+function exportChat() {
+  const chat = getCurrentChat();
+  if (!chat || !chat.displayLog?.length) { alert('No chat to export yet.'); return; }
+  const lines = chat.displayLog.map(entry => {
+    const who = entry.role === 'bot' ? 'WolfAI' : (localStorage.getItem('wolfai_user_name') || 'You');
+    const text = entry.html.replace(/<[^>]*>/g,'').trim();
+    return `[${who}]\n${text}\n`;
+  }).join('\n');
+  const blob = new Blob([`WolfAI Chat Export\n${'─'.repeat(40)}\n\n${lines}`], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${(chat.title||'chat').replace(/[^a-z0-9]/gi,'_')}.txt`;
+  a.click();
+}
+
+// ── SUGGESTED FOLLOW-UPS ────────────────────────────────────────
+async function addSuggestions(replyText) {
+  if (!replyText || replyText.length < 30) return;
+  try {
+    const prompt = `Based on this AI reply, suggest exactly 3 short follow-up questions the user might want to ask next. Reply ONLY with a JSON array of 3 strings, no other text: ["question1","question2","question3"]\n\nAI reply:\n${replyText.slice(0,400)}`;
+    const res = await fetch(WORKER_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ contents:[{role:'user',parts:[{text:prompt}]}] })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = raw.trim().replace(/```json|```/g,'').trim();
+    const suggestions = JSON.parse(clean);
+    if (!Array.isArray(suggestions) || !suggestions.length) return;
+    const area = document.getElementById('chatArea');
+    const div = document.createElement('div');
+    div.className = 'suggestions';
+    div.innerHTML = suggestions.map(s => `<button class="suggestion-chip" onclick="quickSend(${JSON.stringify(s)})">${escHtml(s)}</button>`).join('');
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+  } catch(e) { /* non-critical */ }
+}
+
+// ── TOOL DELETE ────────────────────────────────────────────────
+async function deleteTool(key) {
+  if (!confirm('Delete this app? This cannot be undone.')) return;
+  if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    await fetch(`${FIREBASE_URL}/tools/${key}.json`, { method:'DELETE' });
+  }
+  delete toolsData[key];
+  closeUploadToolModal();
+  renderToolsGrid();
+}
 function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stripTags(t){ return t.replace(/<[^>]*>/g,''); }
+
+function renderMarkdownLite(raw) {
+  const codeBlocks = [];
+  let text = raw.replace(/```(\w*)\n?([\s\S]*?)```/g, (m, lang, code) => {
+    codeBlocks.push(`<pre><code>${escHtml(code.trim())}</code></pre>`);
+    return `\u0000CB${codeBlocks.length - 1}\u0000`;
+  });
+  text = escHtml(text);
+  text = text.replace(/`([^`]+)`/g, (m, code) => `<code>${code}</code>`);
+  text = text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  text = text.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<i>$2</i>');
+  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+  text = text.replace(/(?:^|\n)((?:[-*] .+(?:\n|$))+)/g, (m, block) => {
+    const items = block.trim().split('\n').map(l => `<li>${l.replace(/^[-*]\s+/, '')}</li>`).join('');
+    return `\n<ul>${items}</ul>`;
+  });
+  text = text.replace(/(?:^|\n)((?:\d+\. .+(?:\n|$))+)/g, (m, block) => {
+    const items = block.trim().split('\n').map(l => `<li>${l.replace(/^\d+\.\s+/, '')}</li>`).join('');
+    return `\n<ol>${items}</ol>`;
+  });
+  text = text.replace(/\n/g, '<br>');
+  text = text.replace(/\u0000CB(\d+)\u0000/g, (m, idx) => codeBlocks[Number(idx)]);
+  return text;
+}
+function copyMsgText(btn) {
+  const bubble = btn.closest('.bubble');
+  const clone = bubble.cloneNode(true);
+  clone.querySelector('.copy-msg-btn')?.remove();
+  const text = (clone.innerText || clone.textContent || '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const old = btn.textContent;
+    btn.textContent = '✅ Copied';
+    setTimeout(() => btn.textContent = old, 1500);
+  });
+}
 </script>
 </body>
 </html>
