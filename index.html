@@ -255,6 +255,34 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 .tool-popup-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:.76rem;color:var(--muted)}
 .tool-play-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),#5a4adf);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer}
 .tool-play-btn:hover{opacity:.92}
+
+/* RATINGS & COMMENTS */
+.star-row{display:flex;gap:4px;margin-bottom:12px}
+.star{font-size:1.4rem;cursor:pointer;opacity:.35;transition:.1s;line-height:1}
+.star.on,.star:hover{opacity:1}
+.tool-section-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px}
+.comment-list{display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;margin-bottom:10px}
+.comment-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:.8rem}
+.comment-meta{font-size:.7rem;color:var(--muted);margin-bottom:3px;display:flex;gap:6px;align-items:center}
+.comment-stars{color:#fdcb6e;font-size:.75rem}
+.comment-input-row{display:flex;gap:8px}
+.comment-input-row input{flex:1;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.8rem;outline:none}
+.comment-input-row input:focus{border-color:var(--accent)}
+.comment-send-btn{padding:8px 14px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:.8rem;cursor:pointer;white-space:nowrap}
+
+/* AI FEATURE EXTRAS */
+.chat-toolbar{display:flex;gap:6px;padding:6px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;flex-shrink:0}
+.toolbar-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:5px 12px;font-size:.73rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:.15s}
+.toolbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.run-code-btn{display:block;margin-top:6px;background:rgba(0,206,201,.1);border:1px solid rgba(0,206,201,.25);color:var(--accent2);border-radius:6px;padding:4px 12px;font-size:.72rem;cursor:pointer;font-family:'Inter',sans-serif}
+.run-code-btn:hover{background:rgba(0,206,201,.2)}
+.mem-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;font-size:.8rem}
+.mem-item span{flex:1}
+.mem-del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 6px}
+.mem-del-btn:hover{color:var(--red)}
+.quick-translate{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.translate-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:4px 12px;font-size:.74rem;cursor:pointer;font-family:'Inter',sans-serif}
+.translate-chip:hover{border-color:var(--accent2);color:var(--accent2)}
 </style>
 </head>
 <body>
@@ -299,9 +327,22 @@ body.mode-mobile .mobile-backdrop.show{display:block}
     <div class="pinned-bar" id="pinnedBar" onclick="scrollToPin()">
       📌 <span id="pinnedText"></span>
     </div>
+    <div class="chat-toolbar" id="chatToolbar">
+      <button class="toolbar-btn" onclick="summarizeChat()">📝 Summarize chat</button>
+      <button class="toolbar-btn" onclick="showMemoryPanel()">🧠 Memories</button>
+      <button class="toolbar-btn" onclick="quickTranslate()">🌍 Translate last</button>
+      <button class="toolbar-btn" onclick="explainLast()">💡 Explain simpler</button>
+    </div>
     <div class="chat-area" id="chatArea"></div>
 
-    <div class="bottom">
+    <!-- GLOBAL CHAT VIEW (hidden by default) -->
+    <div class="gchat-area" id="gchatArea" style="display:none"></div>
+    <div class="gchat-input-row" id="gchatInputRow" style="display:none">
+      <input class="gchat-input" id="gchatInput" placeholder="Message everyone... (@WolfAI to ask AI)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGlobalMsg()}">
+      <button class="gchat-send" onclick="sendGlobalMsg()">➤</button>
+    </div>
+
+    <div class="bottom" id="bottom">
       <div class="attach-preview" id="attachPreview"></div>
       <div class="input-row">
         <input type="file" id="fileInput" accept="image/*,.txt" style="display:none" onchange="handleFileSelect(event)">
@@ -347,6 +388,19 @@ body.mode-mobile .mobile-backdrop.show{display:block}
     <input type="text" id="settingsNameInput" placeholder="Your name">
     <button class="settings-save-btn" onclick="saveSettingsName()">Save name</button>
 
+    <div id="botAvatarSection" style="display:none">
+      <div class="sidebar-divider" style="margin:4px 0 12px"></div>
+      <label class="settings-label">🤖 WolfAI bot photo</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div id="botAvatarPreview" style="width:44px;height:44px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#6c5ce7,#00cec9);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1rem;flex-shrink:0">W</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <input type="file" id="botAvatarInput" accept="image/*" style="display:none" onchange="handleBotAvatar(event)">
+          <button class="settings-mini-btn" onclick="document.getElementById('botAvatarInput').click()">Change photo</button>
+          <button class="settings-mini-btn" onclick="removeBotAvatar()">Remove</button>
+        </div>
+      </div>
+    </div>
+
     <div class="sidebar-divider" style="margin:4px 0 8px"></div>
 
     <label class="perm-check-row" style="margin-bottom:14px">
@@ -370,9 +424,9 @@ body.mode-mobile .mobile-backdrop.show{display:block}
         </div>
         <input type="file" id="toolPhotoInput" accept="image/*" style="display:none" onchange="handleToolPhoto(event)">
         <div id="toolFilePreview" style="width:100px;height:100px;background:var(--surface);border:2px dashed var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:4px;font-size:.72rem;color:var(--muted);text-align:center;padding:8px" onclick="document.getElementById('toolFileInput').click()">
-          <span style="font-size:1.5rem">📄</span><span>Add file (.html)</span>
+          <span style="font-size:1.5rem">📄</span><span>Add file (.html .js .py)</span>
         </div>
-        <input type="file" id="toolFileInput" accept=".html" style="display:none" onchange="handleToolFile(event)">
+        <input type="file" id="toolFileInput" accept=".html,.js,.py" style="display:none" onchange="handleToolFile(event)">
       </div>
       <div style="flex:1;display:flex;flex-direction:column;gap:8px">
         <label class="settings-label">App name</label>
@@ -850,7 +904,46 @@ function openSettingsModal() {
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) themeToggle.checked = document.body.classList.contains('theme-light');
   renderAvatarPreview();
+  renderBotAvatarPreview();
+  // show bot avatar section only for owner
+  const name = localStorage.getItem('wolfai_user_name');
+  const botSection = document.getElementById('botAvatarSection');
+  if (botSection) botSection.style.display = getUserRole(name) === 'owner' ? 'block' : 'none';
   document.getElementById('settingsModal').style.display = 'flex';
+}
+function renderBotAvatarPreview() {
+  const el = document.getElementById('botAvatarPreview');
+  if (!el) return;
+  const botAvatar = localStorage.getItem('wolfai_bot_avatar');
+  el.innerHTML = botAvatar
+    ? `<img src="${botAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`
+    : 'W';
+}
+function handleBotAvatar(e) {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 96; canvas.height = 96;
+      const ctx = canvas.getContext('2d');
+      const min = Math.min(img.width, img.height);
+      const sx = (img.width - min) / 2, sy = (img.height - min) / 2;
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, 96, 96);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      localStorage.setItem('wolfai_bot_avatar', dataUrl);
+      renderBotAvatarPreview();
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+function removeBotAvatar() {
+  localStorage.removeItem('wolfai_bot_avatar');
+  renderBotAvatarPreview();
 }
 function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
 
@@ -1310,7 +1403,10 @@ function addMsg(role, html, isReplay) {
   div.id = msgId;
   let avatarHtml;
   if (role === 'bot') {
-    avatarHtml = 'W';
+    const botAvatar = localStorage.getItem('wolfai_bot_avatar');
+    avatarHtml = botAvatar
+      ? `<img src="${botAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`
+      : 'W';
   } else {
     const avatar = localStorage.getItem('wolfai_avatar');
     avatarHtml = avatar ? `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">` : '🙂';
@@ -1405,9 +1501,12 @@ function renderToolsGrid() {
     const isOwner = toKey(myName) === t.developerKey;
     const imgHtml = t.photo ? `<img src="${t.photo}">` : `<span>🛠️</span>`;
     const tags = (t.tags||[]).map(tag => `<span class="tool-tag">${escHtml(tag)}</span>`).join('');
+    const typeBadge = t.fileType === 'py' ? `<span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);color:#fdcb6e;font-size:.65rem;padding:2px 7px;border-radius:6px">🐍 Python</span>`
+      : t.fileType === 'js' ? `<span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);color:#00cec9;font-size:.65rem;padding:2px 7px;border-radius:6px">⚡ JS</span>` : '';
     return `
       <div class="tool-card" onclick="openTool('${key}')">
         <div class="tool-card-img">${imgHtml}</div>
+        ${typeBadge}
         ${isOwner ? `<button class="tool-card-edit" onclick="event.stopPropagation();openEditTool('${key}')" title="Edit">✏️</button>` : ''}
         <div class="tool-card-body">
           <div class="tool-card-name">${escHtml(t.name||'Unnamed')}</div>
@@ -1417,14 +1516,6 @@ function renderToolsGrid() {
       </div>`;
   }).join('');
 }
-function openTool(key) {
-  const t = toolsData[key];
-  if (!t?.fileContent) return;
-  const blob = new Blob([t.fileContent], {type:'text/html'});
-  const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
-}
-
 // Upload modal
 function openUploadToolModal(editKey) {
   editingToolKey = editKey || null;
@@ -1464,12 +1555,18 @@ function handleToolPhoto(e) {
     }; img.src = reader.result;
   }; reader.readAsDataURL(file); e.target.value='';
 }
+let toolFileType = null;
 function handleToolFile(e) {
   const file = e.target.files[0]; if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const allowed = ['html','js','py'];
+  if (!allowed.includes(ext)) { alert('Only .html, .js, and .py files are supported.'); return; }
   const reader = new FileReader();
   reader.onload = () => {
     toolFileContent = reader.result;
-    document.getElementById('toolFilePreview').innerHTML = `<span style="font-size:1.5rem">✅</span><span style="font-size:.65rem;word-break:break-all">${escHtml(file.name)}</span>`;
+    toolFileType = ext;
+    const icon = ext === 'py' ? '🐍' : ext === 'js' ? '⚡' : '🌐';
+    document.getElementById('toolFilePreview').innerHTML = `<span style="font-size:1.5rem">${icon}</span><span style="font-size:.65rem;word-break:break-all">${escHtml(file.name)}</span>`;
   }; reader.readAsText(file); e.target.value='';
 }
 async function submitToolUpload() {
@@ -1486,6 +1583,7 @@ async function submitToolUpload() {
     name, developer: dev, developerKey: toKey(dev), description: desc,
     tags, photo: toolPhotoData || (editingToolKey ? toolsData[editingToolKey]?.photo : null),
     fileContent: toolFileContent || (editingToolKey ? toolsData[editingToolKey]?.fileContent : null),
+    fileType: toolFileType || (editingToolKey ? toolsData[editingToolKey]?.fileType : 'html'),
     plays: editingToolKey ? (toolsData[editingToolKey]?.plays || 0) : 0,
     uploadedAt: new Date().toISOString()
   };
@@ -1499,41 +1597,52 @@ async function submitToolUpload() {
 
 // ── GLOBAL CHAT ──────────────────────────────────────────────────
 let gchatListener = null;
-let gchatMessages = {};
 
 function showGlobalChat() {
   if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
-  if (gchatListener) { clearInterval(gchatListener); gchatListener = null; }
   heroShowing = false; currentChatId = null;
   renderSidebarChats();
   document.getElementById('currentChatTitle').textContent = 'Global Chat';
+  // swap views
   document.getElementById('chatArea').style.display = 'none';
-  document.getElementById('chatArea').insertAdjacentHTML('afterend', `
-    <div class="gchat-area" id="gchatArea"></div>
-    <div class="gchat-input-row">
-      <input class="gchat-input" id="gchatInput" placeholder="Message everyone... (use @WolfAI to ask AI)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGlobalMsg()}">
-      <button class="gchat-send" onclick="sendGlobalMsg()">➤</button>
-    </div>`);
+  document.getElementById('pinnedBar').style.display = 'none';
+  document.getElementById('chatToolbar').style.display = 'none';
+  document.getElementById('bottom').style.display = 'none';
+  document.getElementById('gchatArea').style.display = 'flex';
+  document.getElementById('gchatInputRow').style.display = 'flex';
   loadGlobalMessages();
+  if (gchatListener) clearInterval(gchatListener);
   gchatListener = setInterval(loadGlobalMessages, 3000);
+  setTimeout(() => document.getElementById('gchatInput')?.focus(), 100);
+}
+
+function leaveGlobalChat() {
+  if (gchatListener) { clearInterval(gchatListener); gchatListener = null; }
+  document.getElementById('chatArea').style.display = '';
+  document.getElementById('pinnedBar').style.display = '';
+  document.getElementById('chatToolbar').style.display = '';
+  document.getElementById('bottom').style.display = '';
+  document.getElementById('gchatArea').style.display = 'none';
+  document.getElementById('gchatInputRow').style.display = 'none';
 }
 
 async function loadGlobalMessages() {
   if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
   try {
-    const res = await fetch(`${FIREBASE_URL}/globalChat.json?orderBy="ts"&limitToLast=60`);
-    const data = await res.json() || {};
+    const res = await fetch(`${FIREBASE_URL}/globalChat.json?limitToLast=80`);
+    const data = await res.json();
     const area = document.getElementById('gchatArea');
-    if (!area) return;
+    if (!area || area.style.display === 'none') return;
+    if (!data || typeof data !== 'object') { area.innerHTML = `<div style="color:var(--muted);padding:20px;text-align:center;font-size:.82rem">No messages yet. Say hi! 👋</div>`; return; }
     const myKey = toKey(localStorage.getItem('wolfai_user_name') || '');
-    const entries = Object.entries(data).sort((a,b) => (a[1].ts||0) - (b[1].ts||0));
-    const atBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 60;
-    area.innerHTML = entries.map(([k, m]) => {
+    const entries = Object.values(data).sort((a,b) => (a.ts||0) - (b.ts||0));
+    const atBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 80;
+    area.innerHTML = entries.map(m => {
       const mine = toKey(m.sender||'') === myKey;
       const isBot = m.sender === 'WolfAI';
       const avatarHtml = m.avatar ? `<img src="${m.avatar}">` : (m.sender||'?')[0].toUpperCase();
       const tagHtml = m.tag ? `<span class="tag">${escHtml(m.tag)}</span>` : '';
-      const time = m.ts ? new Date(m.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+      const time = m.ts ? new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
       return `<div class="gchat-msg ${mine?'mine':''} ${isBot?'bot-reply':''}">
         <div class="gchat-avatar">${avatarHtml}</div>
         <div class="gchat-body">
@@ -1543,7 +1652,7 @@ async function loadGlobalMessages() {
       </div>`;
     }).join('');
     if (atBottom) area.scrollTop = area.scrollHeight;
-  } catch(e) {}
+  } catch(e) { console.error('gchat load error:', e); }
 }
 
 async function sendGlobalMsg() {
@@ -1554,48 +1663,49 @@ async function sendGlobalMsg() {
   const name = localStorage.getItem('wolfai_user_name') || 'Guest';
   const avatar = localStorage.getItem('wolfai_avatar') || null;
   const customKey = userCustomRoles[toKey(name)];
-  const tag = customKey && customRoles[customKey] ? customRoles[customKey].label : (getUserRole(name) === 'owner' ? 'Owner' : getUserRole(name) === 'moderator' ? 'Moderator' : null);
+  const tag = customKey && customRoles[customKey] ? customRoles[customKey].label
+    : getUserRole(name) === 'owner' ? 'Owner'
+    : getUserRole(name) === 'moderator' ? 'Moderator' : null;
   const msg = { sender: name, text, ts: Date.now(), avatar, tag };
   if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
-    await fetch(`${FIREBASE_URL}/globalChat.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(msg) });
+    await fetch(`${FIREBASE_URL}/globalChat.json`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(msg)
+    });
   }
-  // @WolfAI mention
+  loadGlobalMessages();
+  // @WolfAI mention → AI reply
   if (/@wolfai/i.test(text)) {
     setTimeout(async () => {
       try {
+        const question = text.replace(/@wolfai/gi,'').trim();
         const res = await fetch(WORKER_URL, {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ contents:[{role:'user',parts:[{text: text.replace(/@wolfai/i,'').trim()}]}], systemInstruction:{parts:[{text:buildSystemPrompt()}]} })
+          body: JSON.stringify({ contents:[{role:'user',parts:[{text:question}]}], systemInstruction:{parts:[{text:buildSystemPrompt()}]} })
         });
+        if (!res.ok) return;
         const data = await res.json();
         const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (reply && FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
-          await fetch(`${FIREBASE_URL}/globalChat.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sender:'WolfAI', text: reply, ts: Date.now(), avatar: null, tag: 'AI' }) });
+          await fetch(`${FIREBASE_URL}/globalChat.json`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ sender:'WolfAI', text: reply, ts: Date.now(), avatar: null, tag: 'AI' })
+          });
+          loadGlobalMessages();
         }
       } catch(e) {}
     }, 800);
   }
-  loadGlobalMessages();
-}
-
-function leaveGlobalChat() {
-  if (gchatListener) { clearInterval(gchatListener); gchatListener = null; }
-  const gcArea = document.getElementById('gchatArea');
-  const gcInput = gcArea?.nextElementSibling;
-  gcArea?.remove(); gcInput?.remove();
-  document.getElementById('chatArea').style.display = '';
 }
 
 // ── TOOL POPUP ────────────────────────────────────────────────────
+let pendingRating = 0;
+
 function openTool(key) {
   const t = toolsData[key];
   if (!t) return;
-  // increment play count
-  const count = (t.plays || 0) + 1;
-  toolsData[key].plays = count;
-  if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
-    fetch(`${FIREBASE_URL}/tools/${key}/plays.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: String(count) });
-  }
+  pendingRating = 0;
+  const count = t.plays || 0;
+  const avgRating = t.ratingTotal && t.ratingCount ? (t.ratingTotal / t.ratingCount).toFixed(1) : null;
   const bannerHtml = t.photo
     ? `<img class="tool-popup-banner" src="${t.photo}">`
     : `<div class="tool-popup-banner-placeholder">🛠️</div>`;
@@ -1605,27 +1715,167 @@ function openTool(key) {
   overlay.id = 'toolPopupOverlay';
   overlay.onclick = (e) => { if (e.target === overlay) closeToolPopup(); };
   overlay.innerHTML = `
-    <div class="tool-popup-box">
-      <button class="modal-close" onclick="closeToolPopup()" style="z-index:2;background:rgba(0,0,0,.5);color:#fff">✕</button>
+    <div class="tool-popup-box" style="max-height:90vh;overflow-y:auto">
+      <button class="modal-close" onclick="closeToolPopup()" style="z-index:2;background:rgba(0,0,0,.5);color:#fff;position:sticky;top:8px">✕</button>
       ${bannerHtml}
       <div class="tool-popup-body">
         <div class="tool-popup-title">${escHtml(t.name||'Unnamed')}</div>
         <div class="tool-popup-dev">by ${escHtml(t.developer||'Unknown')}</div>
         <div class="tool-tags" style="margin-bottom:10px">${tags}</div>
         <div class="tool-popup-desc">${escHtml(t.description || 'No description provided.')}</div>
-        <div class="tool-popup-meta">🎮 ${count} ${count===1?'play':'plays'}</div>
-        <button class="tool-play-btn" onclick="launchTool('${key}')">▶ Play / Open</button>
+        <div class="tool-popup-meta">
+          🎮 ${count} ${count===1?'play':'plays'}
+          ${avgRating ? `&nbsp;·&nbsp; ⭐ ${avgRating} (${t.ratingCount})` : ''}
+        </div>
+        <button class="tool-play-btn" onclick="launchTool('${key}')">
+          ${t.fileType === 'py' ? '🐍 Run Python' : t.fileType === 'js' ? '⚡ Run JavaScript' : '▶ Play / Open'}
+        </button>
+
+        <div class="tool-section-title">Rate this app</div>
+        <div class="star-row" id="starRow-${key}">
+          ${[1,2,3,4,5].map(n => `<span class="star" data-n="${n}" onclick="setRating('${key}',${n})" onmouseover="hoverStars('${key}',${n})" onmouseout="resetStars('${key}')">★</span>`).join('')}
+        </div>
+        <div id="ratingMsg-${key}" style="font-size:.74rem;color:var(--muted);margin-bottom:12px"></div>
+
+        <div class="tool-section-title">Comments</div>
+        <div class="comment-list" id="commentList-${key}"><div style="color:var(--muted);font-size:.78rem">Loading...</div></div>
+        <div class="comment-input-row">
+          <input type="text" id="commentInput-${key}" placeholder="Write a comment..." onkeydown="if(event.key==='Enter')submitComment('${key}')">
+          <button class="comment-send-btn" onclick="submitComment('${key}')">Send</button>
+        </div>
       </div>
     </div>`;
   document.body.appendChild(overlay);
+  loadComments(key);
 }
-function closeToolPopup() { document.getElementById('toolPopupOverlay')?.remove(); }
+function closeToolPopup() { document.getElementById('toolPopupOverlay')?.remove(); pendingRating = 0; }
 function launchTool(key) {
   const t = toolsData[key];
   if (!t?.fileContent) return;
-  closeToolPopup();
-  const blob = new Blob([t.fileContent], {type:'text/html'});
+  // increment play count
+  toolsData[key].plays = (t.plays||0) + 1;
+  if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    fetch(`${FIREBASE_URL}/tools/${key}/plays.json`, {method:'PUT',headers:{'Content-Type':'application/json'},body:String(toolsData[key].plays)});
+  }
+  const type = (t.fileType || 'html').toLowerCase();
+  let html;
+  if (type === 'html') {
+    html = t.fileContent;
+  } else if (type === 'js') {
+    html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(t.name||'Tool')}</title>
+    <style>body{margin:0;background:#07070f;color:#eeeef8;font-family:Inter,sans-serif;padding:20px}
+    #output{white-space:pre-wrap;font-family:monospace;font-size:.85rem;background:#0f0f1a;border:1px solid #1e1e30;border-radius:10px;padding:16px;min-height:100px}</style></head>
+    <body><h3 style="color:#6c5ce7">▶ ${escHtml(t.name||'JS Tool')}</h3>
+    <div id="output"></div>
+    \x3cscript\x3e
+    const _log=console.log.bind(console);
+    console.log=(...a)=>{document.getElementById('output').textContent+=a.join(' ')+'\\n';_log(...a)};
+    try{${t.fileContent}}catch(e){document.getElementById('output').textContent='Error: '+e.message}
+    <\/script></body></html>`;
+  } else if (type === 'py') {
+    html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(t.name||'Python Tool')}</title>
+    <style>body{margin:0;background:#07070f;color:#eeeef8;font-family:Inter,sans-serif;padding:20px}
+    #output{white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#0f0f1a;border:1px solid #1e1e30;border-radius:10px;padding:16px;min-height:100px}
+    #status{color:#6868a0;font-size:.78rem;margin-bottom:10px}</style></head>
+    <body>
+    <h3 style="color:#6c5ce7">🐍 ${escHtml(t.name||'Python Tool')}</h3>
+    <div id="status">Loading Python runtime... (first load may take ~10 seconds)</div>
+    <div id="output"></div>
+    \x3cscript src="https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js"><\/script>
+    \x3cscript\x3e
+    async function main() {
+      const statusEl = document.getElementById('status');
+      const outputEl = document.getElementById('output');
+      try {
+        statusEl.textContent = 'Initializing Pyodide...';
+        const pyodide = await loadPyodide();
+        pyodide.setStdout({ batched: (s) => { outputEl.textContent += s + '\\n'; } });
+        pyodide.setStderr({ batched: (s) => { outputEl.textContent += 'Error: ' + s + '\\n'; } });
+        statusEl.textContent = '✅ Python ready — running...';
+        await pyodide.runPythonAsync(${JSON.stringify(t.fileContent)});
+        statusEl.textContent = '✅ Done';
+      } catch(e) {
+        statusEl.textContent = '❌ Error';
+        outputEl.textContent += '\\nError: ' + e.message;
+      }
+    }
+    main();
+    <\/script></body></html>`;
+  }
+  const blob = new Blob([html], {type:'text/html'});
   window.open(URL.createObjectURL(blob), '_blank');
+}
+
+// ── STAR RATING ────────────────────────────────────────────────
+function hoverStars(key, n) {
+  document.querySelectorAll(`#starRow-${key} .star`).forEach(s => {
+    s.classList.toggle('on', Number(s.dataset.n) <= n);
+  });
+}
+function resetStars(key) {
+  document.querySelectorAll(`#starRow-${key} .star`).forEach(s => {
+    s.classList.toggle('on', Number(s.dataset.n) <= pendingRating);
+  });
+}
+async function setRating(key, n) {
+  pendingRating = n;
+  hoverStars(key, n);
+  const msgEl = document.getElementById(`ratingMsg-${key}`);
+  if (msgEl) msgEl.textContent = `You rated this ${n} star${n>1?'s':''}!`;
+  const name = localStorage.getItem('wolfai_user_name') || 'anon';
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  try {
+    const t = toolsData[key];
+    const newCount = (t.ratingCount||0) + 1;
+    const newTotal = (t.ratingTotal||0) + n;
+    toolsData[key].ratingCount = newCount;
+    toolsData[key].ratingTotal = newTotal;
+    await fetch(`${FIREBASE_URL}/tools/${key}/ratingCount.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:String(newCount)});
+    await fetch(`${FIREBASE_URL}/tools/${key}/ratingTotal.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:String(newTotal)});
+    // store user's rating so they can't spam
+    await fetch(`${FIREBASE_URL}/tools/${key}/ratings/${encodeURIComponent(name)}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:String(n)});
+  } catch(e) {}
+}
+
+// ── COMMENTS ──────────────────────────────────────────────────
+async function loadComments(key) {
+  const listEl = document.getElementById(`commentList-${key}`);
+  if (!listEl) return;
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) {
+    listEl.innerHTML = `<div style="color:var(--muted);font-size:.78rem">No comments yet.</div>`; return;
+  }
+  try {
+    const res = await fetch(`${FIREBASE_URL}/toolComments/${key}.json`);
+    const data = await res.json();
+    if (!data) { listEl.innerHTML = `<div style="color:var(--muted);font-size:.78rem">No comments yet. Be the first!</div>`; return; }
+    const entries = Object.values(data).sort((a,b) => (b.ts||0)-(a.ts||0));
+    listEl.innerHTML = entries.map(c => {
+      const stars = c.rating ? '⭐'.repeat(c.rating) : '';
+      const time = c.ts ? new Date(c.ts).toLocaleDateString() : '';
+      const avatarHtml = c.avatar ? `<img src="${c.avatar}" style="width:18px;height:18px;border-radius:50%;object-fit:cover">` : '';
+      return `<div class="comment-item">
+        <div class="comment-meta">${avatarHtml} <b>${escHtml(c.name||'?')}</b> <span class="comment-stars">${stars}</span> <span>${time}</span></div>
+        ${escHtml(c.text)}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div style="color:var(--muted);font-size:.78rem">Could not load comments.</div>`;
+  }
+}
+async function submitComment(key) {
+  const input = document.getElementById(`commentInput-${key}`);
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const name = localStorage.getItem('wolfai_user_name') || 'Guest';
+  const avatar = localStorage.getItem('wolfai_avatar') || null;
+  const comment = { name, text, avatar, rating: pendingRating || null, ts: Date.now() };
+  if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    await fetch(`${FIREBASE_URL}/toolComments/${key}.json`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(comment)
+    });
+  }
+  loadComments(key);
 }
 
 // ── THEME ───────────────────────────────────────────────────────
@@ -1737,7 +1987,11 @@ function stripTags(t){ return t.replace(/<[^>]*>/g,''); }
 function renderMarkdownLite(raw) {
   const codeBlocks = [];
   let text = raw.replace(/```(\w*)\n?([\s\S]*?)```/g, (m, lang, code) => {
-    codeBlocks.push(`<pre><code>${escHtml(code.trim())}</code></pre>`);
+    const escaped = escHtml(code.trim());
+    const runBtn = (lang.toLowerCase() === 'html')
+      ? `<button class="run-code-btn" onclick="runHtmlSnippet(this)">▶ Run HTML</button>`
+      : '';
+    codeBlocks.push(`<pre><code>${escaped}</code></pre>${runBtn}`);
     return `\u0000CB${codeBlocks.length - 1}\u0000`;
   });
   text = escHtml(text);
@@ -1767,6 +2021,127 @@ function copyMsgText(btn) {
     btn.textContent = '✅ Copied';
     setTimeout(() => btn.textContent = old, 1500);
   });
+}
+
+// ── AI TOOLBAR FEATURES ─────────────────────────────────────────
+
+async function summarizeChat() {
+  if (!history.length) { addMsg('bot', 'No chat to summarize yet! Start a conversation first.'); return; }
+  if (isSending) return;
+  isSending = true;
+  if (heroShowing) { heroShowing = false; document.getElementById('chatArea').innerHTML = ''; }
+  ensureChatPersisted('Summary');
+  const typingId = addTyping();
+  setStatus('Summarizing...', 'busy');
+  document.getElementById('sendBtn').disabled = true;
+  try {
+    const res = await fetch(WORKER_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents: [...history, {role:'user', parts:[{text:'Please give a brief summary of our conversation so far in 3-5 bullet points.'}]}],
+        systemInstruction:{parts:[{text:buildSystemPrompt()}]}
+      })
+    });
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not summarize.';
+    removeTyping(typingId);
+    const html = '📝 **Chat Summary:**\n' + raw;
+    addMsg('bot', renderMarkdownLite(html));
+    persistDisplay('bot', renderMarkdownLite(html));
+    setStatus('Ready');
+  } catch(e) {
+    removeTyping(typingId);
+    addMsg('bot', 'Could not summarize right now. Try again in a moment.');
+    setStatus('Error','err'); setTimeout(()=>setStatus('Ready'),3000);
+  }
+  document.getElementById('sendBtn').disabled = false;
+  isSending = false;
+}
+
+async function explainLast() {
+  if (!history.length) { addMsg('bot', 'No previous message to explain!'); return; }
+  document.getElementById('userInput').value = 'Can you explain that again but simpler, like I\'m 12 years old?';
+  sendMessage();
+}
+
+async function quickTranslate() {
+  const lastBot = [...history].reverse().find(h => h.role === 'model');
+  if (!lastBot) { addMsg('bot', 'No AI message to translate yet!'); return; }
+  const lastText = lastBot.parts?.[0]?.text || '';
+  if (!lastText) return;
+  // show translate options
+  const area = document.getElementById('chatArea');
+  const div = document.createElement('div');
+  div.style.cssText = 'padding:8px 20px 4px 62px';
+  div.innerHTML = `<div style="font-size:.76rem;color:var(--muted);margin-bottom:6px">Translate last reply to:</div>
+    <div class="quick-translate">
+      <button class="translate-chip" onclick="translateTo('Sinhala',this.closest('div').parentElement)">🇱🇰 Sinhala</button>
+      <button class="translate-chip" onclick="translateTo('Simple English',this.closest('div').parentElement)">🇺🇸 Simple English</button>
+      <button class="translate-chip" onclick="translateTo('Tamil',this.closest('div').parentElement)">🇮🇳 Tamil</button>
+      <button class="translate-chip" onclick="translateTo('Japanese',this.closest('div').parentElement)">🇯🇵 Japanese</button>
+    </div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+async function translateTo(lang, el) {
+  el?.remove();
+  document.getElementById('userInput').value = `Translate your last reply to ${lang}.`;
+  sendMessage();
+}
+
+// ── MEMORY PANEL ───────────────────────────────────────────────
+function showMemoryPanel() {
+  const mems = getMemories();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.id = 'memoryModal';
+  overlay.onclick = (e) => { if(e.target===overlay) overlay.remove(); };
+  const memHtml = mems.length
+    ? mems.map((m,i) => `<div class="mem-item"><span>${escHtml(m)}</span><button class="mem-del-btn" onclick="deleteMemory(${i})">✕</button></div>`).join('')
+    : `<p style="color:var(--muted);font-size:.82rem;text-align:center">No memories yet. Say "remember [something]" to add one!</p>`;
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:360px;text-align:left;max-height:80vh;overflow-y:auto">
+      <button class="modal-close" onclick="document.getElementById('memoryModal').remove()">✕</button>
+      <h2 style="text-align:center;margin-bottom:14px">🧠 My Memories</h2>
+      <div id="memList">${memHtml}</div>
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <input type="text" id="newMemInput" placeholder="Add a memory..." style="flex:1;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem">
+        <button class="settings-mini-btn" onclick="addMemoryFromPanel()">Add</button>
+      </div>
+      ${mems.length ? `<button class="settings-action danger" style="margin-top:10px;width:100%" onclick="clearAllMemories()">🗑️ Clear all memories</button>` : ''}
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function deleteMemory(idx) {
+  const mems = getMemories();
+  mems.splice(idx, 1);
+  localStorage.setItem('wolfai_memories', JSON.stringify(mems));
+  document.getElementById('memoryModal')?.remove();
+  showMemoryPanel();
+}
+function addMemoryFromPanel() {
+  const input = document.getElementById('newMemInput');
+  const val = input.value.trim();
+  if (!val) return;
+  addMemory(val);
+  document.getElementById('memoryModal')?.remove();
+  showMemoryPanel();
+}
+function clearAllMemories() {
+  if (!confirm('Clear all memories?')) return;
+  localStorage.removeItem('wolfai_memories');
+  document.getElementById('memoryModal')?.remove();
+  showMemoryPanel();
+}
+
+// ── RUN HTML SNIPPET ───────────────────────────────────────────
+function runHtmlSnippet(btn) {
+  const pre = btn.previousElementSibling;
+  const code = pre?.querySelector('code')?.innerText || pre?.innerText || '';
+  if (!code.trim()) return;
+  const blob = new Blob([code], {type:'text/html'});
+  window.open(URL.createObjectURL(blob), '_blank');
 }
 </script>
 </body>
