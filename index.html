@@ -11,7 +11,7 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
 .app-shell{display:flex;height:100vh;width:100vw}
 
-/* SIDEBAR + UI (v14 polished) */
+/* Sidebar */
 .sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:all .3s}
 .sidebar.collapsed{width:0;border:none;overflow:hidden;opacity:0}
 .logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
@@ -20,18 +20,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .chat-item:hover{background:var(--card);color:var(--text)}
 .chat-item.active{background:rgba(108,92,231,.16);color:var(--text)}
 
-/* Main styles from v13 preserved with v14 polish */
+/* Main Area */
 .main-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.main-header{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
 .chat-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
-.msg{display:flex;gap:10px;animation:fadeIn .2s ease}
+.msg{display:flex;gap:10px}
 .msg.user{flex-direction:row-reverse;align-self:flex-end}
 .msg.bot{align-self:flex-start}
 .bubble{padding:10px 14px;border-radius:14px;font-size:.88rem;line-height:1.65}
 .bot .bubble{background:var(--card);border:1px solid var(--border)}
 .user .bubble{background:linear-gradient(135deg,rgba(108,92,231,.22),rgba(0,206,201,.1));border:1px solid rgba(108,92,231,.3)}
 
-/* Add your full CSS from v13 here if needed - this is the core */
-
+/* Global Chat */
+.gchat-area{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.gchat-msg{display:flex;gap:9px}
+.gchat-msg.mine{flex-direction:row-reverse}
+.gchat-bubble{padding:8px 12px;border-radius:12px;font-size:.84rem;line-height:1.6}
+.gchat-msg.mine .gchat-bubble{background:linear-gradient(135deg,rgba(108,92,231,.25),rgba(0,206,201,.12));border:1px solid rgba(108,92,231,.3)}
+.gchat-input-row{display:flex;gap:8px;align-items:center;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface)}
+.gchat-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:9px 14px;color:var(--text);outline:none}
 </style>
 </head>
 <body>
@@ -53,51 +60,25 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 
   <main class="main-area">
     <div class="main-header">
-      <button class="icon-btn" onclick="toggleSidebar()">☰</button>
+      <button onclick="toggleSidebar()">☰</button>
       <span id="currentChatTitle">New chat</span>
-      <button class="icon-btn" onclick="exportChat()">💾</button>
-      <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
     </div>
     <div class="chat-area" id="chatArea"></div>
+
+    <!-- Global Chat -->
+    <div class="gchat-area" id="gchatArea" style="display:none"></div>
+    <div class="gchat-input-row" id="gchatInputRow" style="display:none">
+      <input class="gchat-input" id="gchatInput" placeholder="Message everyone... (@WolfAI to ask AI)" onkeydown="if(event.key==='Enter') sendGlobalMsg()">
+      <button onclick="sendGlobalMsg()">➤</button>
+    </div>
+
     <div class="bottom" id="bottom">
-      <div class="input-row">
-        <textarea id="userInput" placeholder="Type a message..." onkeydown="handleKey(event)"></textarea>
-        <button class="send-btn" onclick="sendMessage()">➤</button>
-      </div>
+      <textarea id="userInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()"></textarea>
+      <button onclick="sendMessage()">➤</button>
     </div>
   </main>
 </div>
 
 <script>
-// Full v14 logic (based on v13 + improvements)
-const WORKER_URL = "https://broad-salad-8410.amiru12av.workers.dev";
-const FIREBASE_URL = "https://wolfai-5b255-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-let history = [];
-let chats = [];
-let currentChatId = null;
-
-function createNewChat() {
-  currentChatId = 'chat_' + Date.now();
-  history = [];
-  document.getElementById('chatArea').innerHTML = `<div style="text-align:center;padding:50px;color:var(--muted)">New chat started with WolfAI v14</div>`;
-}
-
-async function sendMessage() {
-  const input = document.getElementById('userInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  document.getElementById('chatArea').innerHTML += `<div class="msg user"><div class="bubble">${text}</div></div>`;
-  
-  // Simulate AI response (v14 improved)
-  setTimeout(() => {
-    document.getElementById('chatArea').innerHTML += `<div class="msg bot"><div class="bubble">WolfAI v14 here! How can I help you today? 🐺</div></div>`;
-  }, 800);
-}
-
-console.log("🐺 WolfAI v14 Loaded Successfully!");
-</script>
-</body>
-</html>
+// Core Variables
+const WORKER_URL = "https://broad-salad-8410.amiru
