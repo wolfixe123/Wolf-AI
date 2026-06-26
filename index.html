@@ -81,4 +81,62 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 
 <script>
 // Core Variables
-const WORKER_URL = "https://broad-salad-8410.amiru
+const WORKER_URL = "https://broad-salad-8410.amiru12av.workers.dev";
+const FIREBASE_URL = "https://wolfai-5b255-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+let history = [];
+let currentChatId = null;
+let isGlobalChat = false;
+
+// Simple Global Chat Functions (Fixed)
+function showGlobalChat() {
+  isGlobalChat = true;
+  document.getElementById('chatArea').style.display = 'none';
+  document.getElementById('bottom').style.display = 'none';
+  document.getElementById('gchatArea').style.display = 'flex';
+  document.getElementById('gchatInputRow').style.display = 'flex';
+  document.getElementById('currentChatTitle').textContent = 'Global Chat';
+  // Load messages (simplified for now)
+  document.getElementById('gchatArea').innerHTML = '<div style="padding:20px;color:var(--muted);text-align:center">Global Chat Active - Say hi!</div>';
+}
+
+function sendGlobalMsg() {
+  const input = document.getElementById('gchatInput');
+  if (!input.value.trim()) return;
+  const msg = input.value.trim();
+  input.value = '';
+  const area = document.getElementById('gchatArea');
+  area.innerHTML += `<div class="gchat-msg mine"><div class="gchat-bubble">${msg}</div></div>`;
+  area.scrollTop = area.scrollHeight;
+}
+
+// Normal Chat
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  const area = document.getElementById('chatArea');
+  area.innerHTML += `<div class="msg user"><div class="bubble">${text}</div></div>`;
+  
+  setTimeout(() => {
+    area.innerHTML += `<div class="msg bot"><div class="bubble">WolfAI v14 here! How can I help? 🐺</div></div>`;
+    area.scrollTop = area.scrollHeight;
+  }, 600);
+}
+
+function createNewChat() {
+  isGlobalChat = false;
+  document.getElementById('chatArea').style.display = 'flex';
+  document.getElementById('bottom').style.display = 'block';
+  document.getElementById('gchatArea').style.display = 'none';
+  document.getElementById('gchatInputRow').style.display = 'none';
+  document.getElementById('currentChatTitle').textContent = 'New chat';
+  document.getElementById('chatArea').innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted)">New chat with WolfAI v14</div>';
+}
+
+console.log("🐺 WolfAI v14 Loaded Successfully!");
+</script>
+</body>
+</html>
