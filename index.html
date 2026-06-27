@@ -330,6 +330,66 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 .photo-editor-prompt:focus{border-color:var(--accent)}
 .photo-editor-status{font-size:.78rem;color:var(--muted);text-align:center}
 /* AI FEATURE EXTRAS */
+/* CANVAS/ARTIFACT */
+.artifact-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:60;display:none;align-items:stretch;justify-content:center}
+.artifact-overlay.active{display:flex}
+.artifact-panel{background:var(--surface);border-left:1px solid var(--border);width:min(560px,92vw);display:flex;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.4)}
+.artifact-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.artifact-header h3{flex:1;font-size:.88rem;font-weight:700}
+.artifact-tabs{display:flex;gap:4px;flex-shrink:0}
+.artifact-tab{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.74rem;cursor:pointer;font-family:'Inter',sans-serif}
+.artifact-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.artifact-frame{flex:1;border:none;background:#fff}
+.artifact-code{flex:1;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#e8e8f0;overflow:auto;white-space:pre-wrap;word-break:break-word;background:var(--bg)}
+/* PROJECTS */
+.projects-panel{max-width:640px;margin:0 auto;width:100%;padding:10px}
+.project-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:12px}
+.project-card:hover{border-color:var(--accent)}
+.project-card.active-proj{border-color:var(--accent);background:rgba(108,92,231,.06)}
+.project-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.project-info{flex:1;min-width:0}
+.project-name{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.project-meta{font-size:.72rem;color:var(--muted);margin-top:2px}
+.project-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:4px 8px;border-radius:6px}
+.project-del:hover{color:var(--red);background:rgba(225,112,85,.1)}
+/* PERSONA */
+.persona-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:10px}
+.persona-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;transition:.15s}
+.persona-card:hover,.persona-card.selected{border-color:var(--accent)}
+.persona-card.selected{background:rgba(108,92,231,.08)}
+.persona-emoji{font-size:1.8rem;margin-bottom:6px}
+.persona-name{font-size:.78rem;font-weight:700}
+.persona-desc{font-size:.68rem;color:var(--muted);margin-top:3px;line-height:1.4}
+/* DEEP RESEARCH */
+.research-panel{max-width:680px;margin:0 auto;width:100%;padding:10px;display:flex;flex-direction:column;gap:12px}
+.research-progress{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.research-step{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--border)}
+.research-step:last-child{border-bottom:none}
+.research-step.done{color:var(--text)}
+.research-step.active{color:var(--accent)}
+.step-icon{width:20px;text-align:center;flex-shrink:0}
+/* IMAGE GEN */
+.imagegen-panel{max-width:560px;margin:0 auto;width:100%;padding:10px;display:flex;flex-direction:column;gap:12px}
+.imagegen-result{border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--card);min-height:220px;display:flex;align-items:center;justify-content:center}
+.imagegen-result img{width:100%;display:block;border-radius:14px}
+.imagegen-placeholder{color:var(--muted);font-size:.82rem;text-align:center;padding:20px}
+/* REMINDER */
+.reminder-list{display:flex;flex-direction:column;gap:8px}
+.reminder-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:.82rem}
+.reminder-item.fired{border-color:var(--accent2);background:rgba(0,206,201,.05)}
+.reminder-time{font-size:.72rem;color:var(--muted);flex-shrink:0}
+/* FOLDER */
+.folder-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:.78rem;color:var(--muted);cursor:pointer;margin-bottom:2px}
+.folder-item:hover{background:var(--card);color:var(--text)}
+.folder-item.active-folder{background:rgba(108,92,231,.1);color:var(--accent)}
+.folder-item .folder-del{opacity:0;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;margin-left:auto}
+.folder-item:hover .folder-del{opacity:1}
+/* KEYBOARD SHORTCUTS BADGE */
+.kbd{display:inline-block;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--muted)}
+/* FILE ANALYSIS */
+.file-analysis-drop{border:2px dashed var(--border);border-radius:14px;padding:30px;text-align:center;color:var(--muted);font-size:.84rem;cursor:pointer;transition:.15s;margin-bottom:12px}
+.file-analysis-drop:hover,.file-analysis-drop.dragover{border-color:var(--accent);color:var(--accent);background:rgba(108,92,231,.04)}
+
 .chat-toolbar{display:flex;gap:6px;padding:6px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;flex-shrink:0}
 .toolbar-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:5px 12px;font-size:.73rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:.15s}
 .toolbar-btn:hover{border-color:var(--accent);color:var(--accent)}
@@ -354,11 +414,28 @@ body.mode-mobile .mobile-backdrop.show{display:block}
       <h1>WolfAI</h1>
     </div>
     <button class="new-chat-btn" onclick="createNewChat()">＋ New chat</button>
+    <div id="folderList" style="padding:0 8px 4px"></div>
     <div class="chat-list" id="chatList"></div>
     <div class="sidebar-divider"></div>
-    <div class="nav-item disabled" title="Coming soon">
-      <span>🔍</span>
-      <div class="nav-label"><b>Explore</b><small>In development</small></div>
+    <div class="nav-item" onclick="showProjectsPanel()">
+      <span>📁</span>
+      <div class="nav-label"><b>Projects</b></div>
+    </div>
+    <div class="nav-item" onclick="showPersonaPanel()">
+      <span>🎭</span>
+      <div class="nav-label"><b>AI Personas</b></div>
+    </div>
+    <div class="nav-item" onclick="showResearchPanel()">
+      <span>🔬</span>
+      <div class="nav-label"><b>Deep Research</b></div>
+    </div>
+    <div class="nav-item" onclick="showImageGenPanel()">
+      <span>🖼️</span>
+      <div class="nav-label"><b>Image Gen</b></div>
+    </div>
+    <div class="nav-item" onclick="showRemindersPanel()">
+      <span>⏰</span>
+      <div class="nav-label"><b>Reminders</b></div>
     </div>
     <div class="nav-item" onclick="showGlobalChat()">
       <span style="position:relative">🌐<span class="notif-badge" id="gchatNotifBadge"></span></span>
@@ -421,7 +498,7 @@ body.mode-mobile .mobile-backdrop.show{display:block}
     <div class="bottom" id="bottom">
       <div class="attach-preview" id="attachPreview"></div>
       <div class="input-row">
-        <input type="file" id="fileInput" accept="image/*,.txt" style="display:none" onchange="handleFileSelect(event)">
+        <input type="file" id="fileInput" accept="image/*,.txt,.pdf,.docx,.xlsx,.csv" style="display:none" onchange="handleFileSelect(event)">
         <button class="icon-btn" id="attachBtn" onclick="document.getElementById('fileInput').click()" title="Attach a photo or text file">📎</button>
         <textarea id="userInput" placeholder="Type a message or press 🎙 to speak..." rows="1"
           onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
@@ -2390,7 +2467,596 @@ function clearAllMemories() {
   showMemoryPanel();
 }
 
-// ── RUN HTML SNIPPET ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// ── V16 FEATURES ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+// ── KEYBOARD SHORTCUTS ────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'k') { e.preventDefault(); createNewChat(); }
+    if (e.key === 'b') { e.preventDefault(); toggleSidebar(); }
+    if (e.key === 'f') { e.preventDefault(); toggleChatSearch(); }
+    if (e.key === 'e') { e.preventDefault(); exportChat(); }
+    if (e.key === '/') { e.preventDefault(); document.getElementById('shortcutsModal').style.display='flex'; }
+  }
+  if (e.key === 'Escape') { closeArtifact(); }
+});
+
+// Add shortcuts hint to header
+document.addEventListener('DOMContentLoaded', () => {
+  const hdr = document.getElementById('shortcutsHintBtn');
+  if (!hdr) {
+    const btn = document.createElement('button');
+    btn.id = 'shortcutsHintBtn';
+    btn.className = 'icon-btn';
+    btn.style.cssText = 'width:28px;height:28px;font-size:11px';
+    btn.title = 'Keyboard shortcuts (Ctrl+/)';
+    btn.textContent = '⌨️';
+    btn.onclick = () => document.getElementById('shortcutsModal').style.display='flex';
+    document.querySelector('.main-header').insertBefore(btn, document.getElementById('currentChatTitle').nextSibling);
+  }
+});
+
+// ── PANEL HELPER ──────────────────────────────────────────────
+function showGenericPanel(id, titleEl, contentHtml) {
+  leaveGlobalChat();
+  if (typeof leaveToolsPanel === 'function') leaveToolsPanel();
+  heroShowing = false; currentChatId = null;
+  renderSidebarChats();
+  document.getElementById('currentChatTitle').textContent = titleEl;
+  document.getElementById('chatArea').style.display = 'none';
+  document.getElementById('chatToolbar').style.display = 'none';
+  document.getElementById('chatSearchBar').classList.remove('active');
+  document.getElementById('bottom').style.display = 'none';
+  document.getElementById('pinnedBar').style.display = 'none';
+  let panel = document.getElementById(id);
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = id;
+    panel.style.cssText = 'flex:1;overflow-y:auto;padding:16px 20px';
+    document.querySelector('.main-area').insertBefore(panel, document.getElementById('gchatHeader'));
+  }
+  panel.innerHTML = contentHtml;
+  panel.style.display = 'block';
+  return panel;
+}
+function hideAllPanels() {
+  ['projectsPanel','personaPanel','researchPanel','imagegenPanel','remindersPanel','fileAnalysisPanel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('chatArea').style.display = '';
+  document.getElementById('chatToolbar').style.display = '';
+  document.getElementById('bottom').style.display = '';
+  document.getElementById('pinnedBar').style.display = '';
+}
+
+// ── PROJECTS ──────────────────────────────────────────────────
+let projects = JSON.parse(localStorage.getItem('wolfai_projects') || '[]');
+let activeProjectId = localStorage.getItem('wolfai_active_project') || null;
+function saveProjects() { localStorage.setItem('wolfai_projects', JSON.stringify(projects)); }
+
+function showProjectsPanel() {
+  const panel = showGenericPanel('projectsPanel', '📁 Projects', '');
+  renderProjectsPanel(panel);
+}
+function renderProjectsPanel(panel) {
+  panel.innerHTML = `
+    <div style="max-width:640px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="font-size:1.1rem">📁 Projects</h2>
+        <button class="settings-mini-btn" onclick="createProject()">＋ New Project</button>
+      </div>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:16px">Projects group your chats and give the AI persistent instructions for that context.</p>
+      ${projects.length === 0 ? `<div style="text-align:center;color:var(--muted);padding:40px;font-size:.84rem">No projects yet. Create one to get started!</div>` :
+        projects.map(p => `
+        <div class="project-card ${p.id === activeProjectId ? 'active-proj' : ''}" onclick="activateProject('${p.id}')">
+          <div class="project-icon">${p.emoji || '📁'}</div>
+          <div class="project-info">
+            <div class="project-name">${escHtml(p.name)}</div>
+            <div class="project-meta">${p.chats?.length || 0} chats · ${p.instruction ? 'Has instructions' : 'No instructions'}</div>
+          </div>
+          ${p.id === activeProjectId ? '<span style="color:var(--accent2);font-size:.72rem;font-weight:600">● Active</span>' : ''}
+          <button class="project-del" onclick="event.stopPropagation();deleteProject('${p.id}')">🗑️</button>
+        </div>`).join('')}
+      ${activeProjectId ? `<div style="margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px">
+        <div style="font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:8px">PROJECT INSTRUCTIONS</div>
+        <textarea id="projInstructionInput" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;resize:vertical;min-height:80px;outline:none" placeholder="e.g. Always reply in Sinhala. You are helping me with my school project on WW2.">${escHtml(projects.find(p=>p.id===activeProjectId)?.instruction||'')}</textarea>
+        <button class="settings-save-btn" style="margin-top:8px;width:auto;padding:7px 20px" onclick="saveProjectInstruction()">Save Instructions</button>
+        <button class="settings-mini-btn" style="margin-left:8px" onclick="clearActiveProject()">Deactivate</button>
+      </div>` : ''}
+    </div>`;
+}
+function createProject() {
+  const name = prompt('Project name:'); if (!name) return;
+  const emojis = ['📁','🎓','💼','🎮','🔬','💡','🌍','✍️'];
+  const p = { id: Date.now().toString(), name, emoji: emojis[Math.floor(Math.random()*emojis.length)], instruction: '', chats: [] };
+  projects.push(p); saveProjects();
+  showProjectsPanel();
+}
+function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+  projects = projects.filter(p => p.id !== id);
+  if (activeProjectId === id) { activeProjectId = null; localStorage.removeItem('wolfai_active_project'); }
+  saveProjects(); showProjectsPanel();
+}
+function activateProject(id) {
+  activeProjectId = id; localStorage.setItem('wolfai_active_project', id);
+  showProjectsPanel();
+}
+function clearActiveProject() { activeProjectId = null; localStorage.removeItem('wolfai_active_project'); showProjectsPanel(); }
+function saveProjectInstruction() {
+  const val = document.getElementById('projInstructionInput')?.value || '';
+  const p = projects.find(p => p.id === activeProjectId); if (!p) return;
+  p.instruction = val; saveProjects();
+  addMsg('bot', '✅ Project instructions saved! I\'ll follow them in this project.');
+}
+function getProjectInstruction() {
+  if (!activeProjectId) return '';
+  const p = projects.find(p => p.id === activeProjectId);
+  return p?.instruction ? `\n\nProject context: ${p.instruction}` : '';
+}
+
+// Inject project instruction into system prompt
+const _origBuildSystemPrompt = buildSystemPrompt;
+function buildSystemPrompt() { return _origBuildSystemPrompt() + getProjectInstruction(); }
+
+// Render folder list in sidebar
+function renderFolderList() {
+  const el = document.getElementById('folderList');
+  if (!el || !projects.length) { if(el) el.innerHTML=''; return; }
+  el.innerHTML = projects.map(p => `
+    <div class="folder-item ${p.id === activeProjectId ? 'active-folder' : ''}" onclick="activateProject('${p.id}');createNewChat()">
+      <span>${p.emoji||'📁'}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.76rem">${escHtml(p.name)}</span>
+    </div>`).join('');
+}
+
+// ── AI PERSONAS ───────────────────────────────────────────────
+const PERSONAS = [
+  { id:'default', emoji:'🤖', name:'WolfAI', desc:'Default assistant', prompt:'' },
+  { id:'teacher', emoji:'👨‍🏫', name:'Teacher', desc:'Patient & educational', prompt:'You are a patient, encouraging teacher. Explain things step by step with examples. Use simple language and check for understanding.' },
+  { id:'coder', emoji:'👨‍💻', name:'Coder', desc:'Senior dev, code-focused', prompt:'You are a senior software engineer. Give concise, practical code answers. Always use code blocks. Point out potential bugs or improvements.' },
+  { id:'friend', emoji:'😄', name:'Best Friend', desc:'Casual & fun', prompt:'You are a fun, casual best friend. Use informal language, be supportive, use emojis sometimes, and keep things light and entertaining.' },
+  { id:'researcher', emoji:'🔬', name:'Researcher', desc:'Detailed & analytical', prompt:'You are a thorough researcher. Provide detailed, well-structured answers with multiple perspectives. Cite reasoning. Be comprehensive.' },
+  { id:'creative', emoji:'🎨', name:'Creative', desc:'Imaginative & expressive', prompt:'You are a creative writer and thinker. Use vivid language, metaphors, and imaginative ideas. Think outside the box and inspire creativity.' },
+  { id:'coach', emoji:'💪', name:'Life Coach', desc:'Motivational & focused', prompt:'You are an energetic life coach. Be motivating, action-oriented, and positive. Help break down goals into steps and celebrate progress.' },
+  { id:'sinhala', emoji:'🇱🇰', name:'Sinhala AI', desc:'Always replies in Sinhala', prompt:'Always reply in Sinhala (සිංහල), no matter what language the user writes in. Be warm and friendly.' },
+];
+let activePersonaId = localStorage.getItem('wolfai_persona') || 'default';
+
+function showPersonaPanel() {
+  const panel = showGenericPanel('personaPanel', '🎭 AI Personas', '');
+  panel.innerHTML = `
+    <div style="max-width:600px;margin:0 auto">
+      <h2 style="font-size:1.1rem;margin-bottom:8px">🎭 AI Personas</h2>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:16px">Choose how WolfAI behaves. Each persona has a different personality and style.</p>
+      <div class="persona-grid">
+        ${PERSONAS.map(p => `
+        <div class="persona-card ${p.id === activePersonaId ? 'selected' : ''}" onclick="selectPersona('${p.id}')">
+          <div class="persona-emoji">${p.emoji}</div>
+          <div class="persona-name">${p.name}</div>
+          <div class="persona-desc">${p.desc}</div>
+        </div>`).join('')}
+      </div>
+      <div id="customPersonaBox" style="margin-top:18px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px">
+        <div style="font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:8px">✏️ CUSTOM PERSONA</div>
+        <textarea id="customPersonaInput" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;resize:vertical;min-height:70px;outline:none" placeholder="Describe a custom persona...">${localStorage.getItem('wolfai_custom_persona')||''}</textarea>
+        <button class="settings-save-btn" style="margin-top:8px;width:auto;padding:7px 20px" onclick="saveCustomPersona()">Use Custom</button>
+      </div>
+    </div>`;
+}
+function selectPersona(id) {
+  activePersonaId = id; localStorage.setItem('wolfai_persona', id);
+  document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const p = PERSONAS.find(p => p.id === id);
+  addMsg('bot', `✅ Switched to **${p.name}** persona! ${p.emoji}`);
+}
+function saveCustomPersona() {
+  const val = document.getElementById('customPersonaInput')?.value?.trim(); if (!val) return;
+  localStorage.setItem('wolfai_custom_persona', val);
+  activePersonaId = 'custom'; localStorage.setItem('wolfai_persona', 'custom');
+  addMsg('bot', '✅ Custom persona saved!');
+}
+function getPersonaPrompt() {
+  if (activePersonaId === 'custom') return localStorage.getItem('wolfai_custom_persona') || '';
+  return PERSONAS.find(p => p.id === activePersonaId)?.prompt || '';
+}
+
+// Patch buildSystemPrompt to include persona
+const _origBSP2 = buildSystemPrompt;
+function buildSystemPrompt() { const p = getPersonaPrompt(); return _origBSP2() + (p ? `\n\nPersona override: ${p}` : ''); }
+
+// ── DEEP RESEARCH ─────────────────────────────────────────────
+function showResearchPanel() {
+  const panel = showGenericPanel('researchPanel', '🔬 Deep Research', '');
+  panel.innerHTML = `
+    <div class="research-panel">
+      <h2 style="font-size:1.1rem">🔬 Deep Research</h2>
+      <p style="color:var(--muted);font-size:.8rem">Enter a topic and WolfAI will do a thorough multi-step research report.</p>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="researchInput" style="flex:1;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:Inter,sans-serif;font-size:.88rem;outline:none" placeholder="e.g. History of Sri Lanka's independence movement" onkeydown="if(event.key==='Enter')startResearch()">
+        <button class="send-btn" onclick="startResearch()" style="width:42px;height:42px;border-radius:10px">🔍</button>
+      </div>
+      <div id="researchSteps" class="research-progress" style="display:none"></div>
+      <div id="researchResult" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.84rem;line-height:1.7"></div>
+    </div>`;
+}
+async function startResearch() {
+  const q = document.getElementById('researchInput')?.value?.trim(); if (!q) return;
+  const stepsEl = document.getElementById('researchSteps');
+  const resultEl = document.getElementById('researchResult');
+  stepsEl.style.display = 'block'; resultEl.style.display = 'none';
+  const steps = [
+    { label: 'Understanding the topic', done: false },
+    { label: 'Identifying key areas', done: false },
+    { label: 'Researching background', done: false },
+    { label: 'Analyzing key points', done: false },
+    { label: 'Compiling findings', done: false },
+    { label: 'Writing report', done: false },
+  ];
+  function renderSteps(activeIdx) {
+    stepsEl.innerHTML = steps.map((s, i) => `
+      <div class="research-step ${i < activeIdx ? 'done' : i === activeIdx ? 'active' : ''}">
+        <span class="step-icon">${i < activeIdx ? '✅' : i === activeIdx ? '⏳' : '○'}</span>
+        <span>${s.label}</span>
+      </div>`).join('');
+  }
+  for (let i = 0; i < steps.length; i++) {
+    renderSteps(i);
+    await new Promise(r => setTimeout(r, 700));
+    steps[i].done = true;
+  }
+  renderSteps(steps.length);
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `Write a thorough, well-structured research report on: "${q}". Include: Introduction, Background, Key Points (at least 4), Analysis, Conclusion. Use markdown headings and bullet points. Be comprehensive and informative.` }] }] })
+    });
+    const data = await res.json();
+    const report = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Research failed.';
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `<h3 style="margin-bottom:12px;color:var(--accent)">📄 Research Report: ${escHtml(q)}</h3>` + renderMarkdownLite(report) +
+      `<div style="margin-top:14px;display:flex;gap:8px">
+        <button class="toolbar-btn" onclick="sendResearchToChat()">💬 Send to Chat</button>
+        <button class="toolbar-btn" onclick="exportResearchPDF()">📄 Export</button>
+      </div>`;
+    window._lastResearch = { q, report };
+  } catch(e) { resultEl.style.display='block'; resultEl.textContent = 'Research failed. Check connection.'; }
+}
+function sendResearchToChat() {
+  if (!window._lastResearch) return;
+  createNewChat();
+  addMsg('bot', `📄 **Research Report: ${window._lastResearch.q}**\n\n${window._lastResearch.report}`);
+}
+function exportResearchPDF() {
+  if (!window._lastResearch) return;
+  const blob = new Blob([`Research Report: ${window._lastResearch.q}\n\n${window._lastResearch.report}`], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'research_report.txt'; a.click();
+}
+
+// ── CANVAS / ARTIFACT ─────────────────────────────────────────
+let artifactCode = '', artifactType = 'html';
+function openArtifact(code, type='html', title='Artifact') {
+  artifactCode = code; artifactType = type;
+  document.getElementById('artifactTitle').textContent = title;
+  document.getElementById('artifactIcon').textContent = type === 'html' ? '🌐' : type === 'chart' ? '📊' : '📄';
+  document.getElementById('artifactOverlay').classList.add('active');
+  switchArtifactTab('preview');
+}
+function closeArtifact() { document.getElementById('artifactOverlay').classList.remove('active'); }
+function switchArtifactTab(tab) {
+  document.getElementById('tabPreview').classList.toggle('active', tab==='preview');
+  document.getElementById('tabCode').classList.toggle('active', tab==='code');
+  document.getElementById('artifactFrame').style.display = tab==='preview' ? 'block' : 'none';
+  document.getElementById('artifactCodeView').style.display = tab==='code' ? 'block' : 'none';
+  if (tab === 'preview') {
+    const frame = document.getElementById('artifactFrame');
+    frame.srcdoc = artifactCode;
+  } else {
+    document.getElementById('artifactCodeView').textContent = artifactCode;
+  }
+}
+function copyArtifactCode() { navigator.clipboard.writeText(artifactCode).then(() => alert('Code copied!')); }
+function downloadArtifact() {
+  const ext = artifactType === 'html' ? 'html' : 'txt';
+  const blob = new Blob([artifactCode], {type:'text/'+ext});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `artifact.${ext}`; a.click();
+}
+// Detect artifact/canvas code blocks in AI replies
+function detectAndRenderArtifact(text) {
+  const htmlMatch = text.match(/```html\n([\s\S]*?)```/i);
+  const svgMatch = text.match(/```svg\n([\s\S]*?)```/i);
+  if (htmlMatch || svgMatch) {
+    const code = htmlMatch ? htmlMatch[1] : svgMatch[1];
+    const type = svgMatch ? 'svg' : 'html';
+    const title = type === 'svg' ? 'SVG Preview' : 'HTML Preview';
+    return `<button class="run-code-btn" onclick="openArtifact(${JSON.stringify(code)},'${type}','${title}')">🖼️ Open in Canvas</button>`;
+  }
+  return '';
+}
+// Patch handleReply to detect artifacts
+const _origHandleReply = typeof handleReply === 'function' ? handleReply : null;
+
+// ── IMAGE GENERATION ──────────────────────────────────────────
+function showImageGenPanel() {
+  const panel = showGenericPanel('imagegenPanel', '🖼️ Image Generation', '');
+  panel.innerHTML = `
+    <div class="imagegen-panel">
+      <h2 style="font-size:1.1rem">🖼️ Image Generation</h2>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:10px">Describe an image and WolfAI will generate it using Pollinations AI (free, no signup).</p>
+      <textarea id="imgPrompt" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.86rem;resize:vertical;min-height:70px;outline:none;margin-bottom:10px" placeholder="e.g. A desert warrior riding a camel at sunset, digital art style..."></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="imgStyle" style="padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:Inter,sans-serif;font-size:.8rem">
+          <option value="">Any style</option>
+          <option value=", digital art">Digital Art</option>
+          <option value=", anime style">Anime</option>
+          <option value=", photorealistic">Photorealistic</option>
+          <option value=", watercolor painting">Watercolor</option>
+          <option value=", pixel art">Pixel Art</option>
+          <option value=", oil painting">Oil Painting</option>
+        </select>
+        <button class="send-btn" onclick="generateImage()" style="padding:7px 20px;border-radius:9px;width:auto;height:auto">✨ Generate</button>
+      </div>
+      <div class="imagegen-result" id="imgResult">
+        <div class="imagegen-placeholder">🎨 Your image will appear here</div>
+      </div>
+      <div id="imgActions" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="toolbar-btn" id="imgDownloadBtn">⬇️ Download</button>
+        <button class="toolbar-btn" id="imgChatBtn">💬 Send to Chat</button>
+        <button class="toolbar-btn" id="imgAvatarBtn">👤 Set as Avatar</button>
+      </div>
+    </div>`;
+}
+async function generateImage() {
+  const prompt = document.getElementById('imgPrompt')?.value?.trim(); if (!prompt) return;
+  const style = document.getElementById('imgStyle')?.value || '';
+  const fullPrompt = encodeURIComponent(prompt + style);
+  const resultEl = document.getElementById('imgResult');
+  resultEl.innerHTML = '<div class="imagegen-placeholder">⏳ Generating… (may take 10-20s)</div>';
+  document.getElementById('imgActions').style.display = 'none';
+  const url = `https://image.pollinations.ai/prompt/${fullPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
+  const img = new Image();
+  img.onload = () => {
+    resultEl.innerHTML = ''; resultEl.appendChild(img);
+    img.style.cssText = 'width:100%;border-radius:14px;display:block';
+    const actionsEl = document.getElementById('imgActions');
+    actionsEl.style.display = 'flex';
+    document.getElementById('imgDownloadBtn').onclick = () => { const a=document.createElement('a');a.href=url;a.download='wolfai_image.jpg';a.target='_blank';a.click(); };
+    document.getElementById('imgChatBtn').onclick = () => {
+      pendingAttachment = { type:'image', mimeType:'image/jpeg', base64:null, name:'generated.jpg', previewUrl:url, remoteUrl:url };
+      showAttachPreview('🖼️ generated image');
+      createNewChat();
+    };
+    document.getElementById('imgAvatarBtn').onclick = () => {
+      const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
+      canvas.getContext('2d').drawImage(img,0,0,128,128);
+      const data=canvas.toDataURL('image/jpeg',0.85);
+      localStorage.setItem('wolfai_avatar',data);renderAvatarPreview();renderUserRow();syncAvatarToFirebase(data);
+      alert('Avatar updated! ✅');
+    };
+  };
+  img.onerror = () => { resultEl.innerHTML = '<div class="imagegen-placeholder">❌ Generation failed. Try a different prompt.</div>'; };
+  img.src = url;
+}
+
+// ── FILE ANALYSIS (PDF/DOCX/XLSX/CSV) ────────────────────────
+function showFileAnalysisPanel() {
+  // Trigger file picker directly
+  document.getElementById('fileInput').click();
+}
+// Patch handleFileSelect for richer file types
+const _origHandleFileSelect = handleFileSelect;
+async function handleFileSelect(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (['jpg','jpeg','png','gif','webp'].includes(ext) || ext === 'txt') {
+    return _origHandleFileSelect(e);
+  }
+  // Rich file types — read as text if possible
+  e.target.value = '';
+  const reader = new FileReader();
+  if (ext === 'csv') {
+    reader.onload = () => {
+      const text = reader.result.slice(0, 8000);
+      pendingAttachment = { type: 'text', text: `[CSV File: ${file.name}]\n${text}`, name: file.name };
+      showAttachPreview(`📊 ${file.name}`);
+    };
+    reader.readAsText(file);
+  } else if (ext === 'pdf' || ext === 'docx' || ext === 'xlsx') {
+    // For PDF/DOCX/XLSX we send as base64 document to Gemini vision
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      const mimeMap = { pdf:'application/pdf', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+      pendingAttachment = { type: 'document', mimeType: mimeMap[ext] || 'application/octet-stream', base64, name: file.name };
+      showAttachPreview(`📄 ${file.name}`);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    reader.onload = () => {
+      pendingAttachment = { type: 'text', text: `[File: ${file.name}]\n${reader.result.slice(0,8000)}`, name: file.name };
+      showAttachPreview(`📎 ${file.name}`);
+    };
+    reader.readAsText(file);
+  }
+}
+
+// ── REMINDERS ─────────────────────────────────────────────────
+let reminders = JSON.parse(localStorage.getItem('wolfai_reminders') || '[]');
+function saveReminders() { localStorage.setItem('wolfai_reminders', JSON.stringify(reminders)); }
+function showRemindersPanel() {
+  const panel = showGenericPanel('remindersPanel', '⏰ Reminders', '');
+  renderRemindersPanel(panel);
+}
+function renderRemindersPanel(panel) {
+  const now = Date.now();
+  panel.innerHTML = `
+    <div style="max-width:560px;margin:0 auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="font-size:1.1rem">⏰ Reminders</h2>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:10px">＋ NEW REMINDER</div>
+        <input id="reminderText" style="width:100%;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:Inter,sans-serif;font-size:.84rem;margin-bottom:8px;outline:none" placeholder="Reminder message...">
+        <div style="display:flex;gap:8px">
+          <input id="reminderTime" type="datetime-local" style="flex:1;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none">
+          <button class="settings-save-btn" style="width:auto;padding:8px 18px;margin:0" onclick="addReminder()">＋ Add</button>
+        </div>
+      </div>
+      <div class="reminder-list">
+        ${reminders.length === 0 ? '<div style="text-align:center;color:var(--muted);padding:30px;font-size:.82rem">No reminders yet.</div>' :
+          reminders.map(r => `
+          <div class="reminder-item ${r.ts < now ? 'fired' : ''}">
+            <span style="font-size:1.1rem">${r.ts < now ? '✅' : '⏰'}</span>
+            <div style="flex:1"><div style="font-size:.84rem">${escHtml(r.text)}</div>
+            <div class="reminder-time">${new Date(r.ts).toLocaleString()}</div></div>
+            <button class="project-del" onclick="deleteReminder('${r.id}')">🗑️</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+function addReminder() {
+  const text = document.getElementById('reminderText')?.value?.trim();
+  const timeVal = document.getElementById('reminderTime')?.value;
+  if (!text || !timeVal) { alert('Enter reminder text and time.'); return; }
+  const ts = new Date(timeVal).getTime();
+  const r = { id: Date.now().toString(), text, ts };
+  reminders.push(r); saveReminders();
+  scheduleReminder(r);
+  showRemindersPanel();
+}
+function deleteReminder(id) { reminders = reminders.filter(r => r.id !== id); saveReminders(); showRemindersPanel(); }
+function scheduleReminder(r) {
+  const delay = r.ts - Date.now();
+  if (delay <= 0) return;
+  setTimeout(() => {
+    addMsg('bot', `⏰ **Reminder:** ${r.text}`);
+    playNotifSound();
+    if (Notification.permission === 'granted') new Notification('WolfAI Reminder', { body: r.text });
+  }, delay);
+}
+function initReminders() {
+  if (Notification.permission === 'default') Notification.requestPermission();
+  reminders.forEach(r => scheduleReminder(r));
+}
+
+// ── CHAT FOLDERS (via projects) ───────────────────────────────
+// Chat folders are the Projects — render in sidebar
+const _origInit = typeof initApp === 'function' ? initApp : null;
+
+// ── EXPORT CHAT AS PDF ────────────────────────────────────────
+function exportChatPDF() {
+  const chats = currentChatId ? (JSON.parse(localStorage.getItem('wolfai_chats')||'{}')[currentChatId]?.displayLog||[]) : [];
+  if (!chats.length) { alert('No messages to export.'); return; }
+  const content = chats.map(m => `[${m.role.toUpperCase()}]\n${m.html.replace(/<[^>]+>/g,'')}`).join('\n\n---\n\n');
+  const blob = new Blob([`WolfAI Chat Export\n${'='.repeat(40)}\n\n${content}`], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wolfai_chat.txt'; a.click();
+}
+
+// ── MULTI-LANGUAGE AUTO-DETECT ────────────────────────────────
+// Already handled by system prompt — enhance with visual indicator
+function detectLang(text) {
+  if (/[\u0D80-\u0DFF]/.test(text)) return '🇱🇰 Sinhala';
+  if (/[\u0600-\u06FF]/.test(text)) return '🌙 Arabic';
+  if (/[\u4E00-\u9FFF]/.test(text)) return '🇨🇳 Chinese';
+  if (/[\u0900-\u097F]/.test(text)) return '🇮🇳 Hindi';
+  if (/[\u0400-\u04FF]/.test(text)) return '🇷🇺 Russian';
+  if (/[\u3040-\u30FF]/.test(text)) return '🇯🇵 Japanese';
+  return null;
+}
+
+// ── VOICE CONVERSATION (real-time back & forth) ───────────────
+let voiceConvActive = false;
+let voiceConvRecog = null;
+function toggleVoiceConv() {
+  if (voiceConvActive) { stopVoiceConv(); return; }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) { alert('Voice not supported in this browser.'); return; }
+  voiceConvActive = true;
+  const btn = document.getElementById('voiceConvBtn');
+  if (btn) { btn.textContent = '🔴 Stop Voice'; btn.style.background = 'rgba(225,112,85,.2)'; btn.style.color = 'var(--red)'; }
+  voiceConvRecog = new SpeechRecognition();
+  voiceConvRecog.continuous = false;
+  voiceConvRecog.interimResults = false;
+  voiceConvRecog.lang = 'en-US';
+  voiceConvRecog.onresult = async e => {
+    const text = e.results[0][0].transcript.trim();
+    if (!text) { if (voiceConvActive) voiceConvRecog.start(); return; }
+    document.getElementById('userInput').value = text;
+    await sendMessage();
+    // After AI replies, read it back and listen again
+    setTimeout(() => { if (voiceConvActive) listenAgain(); }, 2000);
+  };
+  voiceConvRecog.onerror = () => { if (voiceConvActive) setTimeout(() => voiceConvRecog.start(), 1000); };
+  voiceConvRecog.onend = () => { if (voiceConvActive) setTimeout(() => voiceConvRecog.start(), 500); };
+  voiceConvRecog.start();
+  addMsg('bot', '🎙️ Voice conversation started! Speak naturally — I\'ll listen and reply.');
+}
+function listenAgain() { if (voiceConvActive && voiceConvRecog) { try { voiceConvRecog.start(); } catch(e){} } }
+function stopVoiceConv() {
+  voiceConvActive = false;
+  if (voiceConvRecog) { voiceConvRecog.stop(); voiceConvRecog = null; }
+  const btn = document.getElementById('voiceConvBtn');
+  if (btn) { btn.textContent = '🎙️ Voice Chat'; btn.style.background=''; btn.style.color=''; }
+  addMsg('bot', '🎙️ Voice conversation ended.');
+}
+
+// Add voice conv + export PDF buttons to toolbar on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  const toolbar = document.getElementById('chatToolbar');
+  if (toolbar) {
+    // Voice conv button
+    const vcBtn = document.createElement('button');
+    vcBtn.id = 'voiceConvBtn'; vcBtn.className = 'toolbar-btn';
+    vcBtn.textContent = '🎙️ Voice Chat';
+    vcBtn.onclick = toggleVoiceConv;
+    toolbar.appendChild(vcBtn);
+    // Export PDF
+    const expBtn = document.createElement('button');
+    expBtn.className = 'toolbar-btn'; expBtn.textContent = '📄 Export PDF';
+    expBtn.onclick = exportChatPDF;
+    toolbar.appendChild(expBtn);
+    // Photo editor
+    const peBtn = document.createElement('button');
+    peBtn.className = 'toolbar-btn'; peBtn.textContent = '🖼️ Edit photo';
+    peBtn.onclick = () => openPhotoEditor(null);
+    toolbar.appendChild(peBtn);
+  }
+  renderFolderList();
+  initReminders();
+});
+
+// ── PATCH handleReply FOR ARTIFACT DETECTION ─────────────────
+// Intercept addMsg for bot to detect canvas-worthy code
+const _origAddMsg = addMsg;
+function addMsg(role, html, isReplay) {
+  _origAddMsg(role, html, isReplay);
+  if (role === 'bot' && !isReplay && typeof html === 'string') {
+    const artifactBtn = detectAndRenderArtifact(html);
+    if (artifactBtn) {
+      const area = document.getElementById('chatArea');
+      const last = area?.lastElementChild;
+      if (last) {
+        const bubble = last.querySelector('.bubble');
+        if (bubble) {
+          const d = document.createElement('div');
+          d.innerHTML = artifactBtn;
+          bubble.appendChild(d.firstChild);
+        }
+      }
+    }
+    // Language detect indicator
+    const rawText = html.replace(/<[^>]+>/g,'');
+    const lang = detectLang(rawText);
+    if (lang) {
+      const dot = document.getElementById('statusDot');
+      const txt = document.getElementById('statusText');
+      if (dot && txt) { txt.textContent = lang; setTimeout(() => txt.textContent = 'Ready', 3000); }
+    }
+  }
+}
+
 function runHtmlSnippet(btn) {
   const pre = btn.previousElementSibling;
   const code = pre?.querySelector('code')?.innerText || pre?.innerText || '';
@@ -2697,6 +3363,44 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- ARTIFACT PANEL -->
+<div class="artifact-overlay" id="artifactOverlay" onclick="if(event.target===this)closeArtifact()">
+  <div style="flex:1"></div>
+  <div class="artifact-panel" id="artifactPanel">
+    <div class="artifact-header">
+      <span id="artifactIcon">📄</span>
+      <h3 id="artifactTitle">Artifact</h3>
+      <div class="artifact-tabs">
+        <button class="artifact-tab active" id="tabPreview" onclick="switchArtifactTab('preview')">Preview</button>
+        <button class="artifact-tab" id="tabCode" onclick="switchArtifactTab('code')">Code</button>
+      </div>
+      <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="copyArtifactCode()" title="Copy code">📋</button>
+      <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="downloadArtifact()" title="Download">⬇️</button>
+      <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="closeArtifact()">✕</button>
+    </div>
+    <iframe class="artifact-frame" id="artifactFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    <pre class="artifact-code" id="artifactCodeView" style="display:none"></pre>
+  </div>
+</div>
+
+<!-- KEYBOARD SHORTCUTS OVERLAY -->
+<div class="modal-overlay" id="shortcutsModal" onclick="if(event.target===this)document.getElementById('shortcutsModal').style.display='none'">
+  <div class="modal-box" style="max-width:400px;text-align:left">
+    <button class="modal-close" onclick="document.getElementById('shortcutsModal').style.display='none'">✕</button>
+    <h2 style="text-align:center;margin-bottom:16px">⌨️ Keyboard Shortcuts</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:.82rem">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>Send message</span><span><kbd class="kbd">Enter</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>New line</span><span><kbd class="kbd">Shift+Enter</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>New chat</span><span><kbd class="kbd">Ctrl+K</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>Toggle sidebar</span><span><kbd class="kbd">Ctrl+B</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>Search messages</span><span><kbd class="kbd">Ctrl+F</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>Export chat</span><span><kbd class="kbd">Ctrl+E</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>Shortcuts</span><span><kbd class="kbd">Ctrl+/</kbd></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span>Stop generation</span><span><kbd class="kbd">Escape</kbd></span></div>
+    </div>
+  </div>
+</div>
 
 <!-- PHOTO EDITOR OVERLAY -->
 <div class="photo-editor-overlay" id="photoEditorOverlay">
