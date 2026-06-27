@@ -270,6 +270,65 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 .comment-input-row input:focus{border-color:var(--accent)}
 .comment-send-btn{padding:8px 14px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:.8rem;cursor:pointer;white-space:nowrap}
 
+/* EMOJI REACTIONS */
+.gchat-reactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.reaction-pill{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:2px 8px;font-size:.74rem;cursor:pointer;display:flex;align-items:center;gap:3px;transition:.15s}
+.reaction-pill:hover,.reaction-pill.mine{border-color:var(--accent);background:rgba(108,92,231,.12)}
+.gchat-bubble-wrap{display:flex;flex-direction:column}
+.gchat-msg-actions{display:flex;gap:6px;margin-top:3px;opacity:0;transition:.15s}
+.gchat-msg:hover .gchat-msg-actions{opacity:1}
+.gchat-act-btn{background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;padding:2px 5px;border-radius:5px;font-family:'Inter',sans-serif}
+.gchat-act-btn:hover{background:var(--card);color:var(--text)}
+/* QUOTE REPLY */
+.quote-bar{display:none;padding:8px 14px;background:rgba(108,92,231,.08);border-top:1px solid var(--border);font-size:.76rem;color:var(--muted);flex-shrink:0;align-items:center;gap:8px}
+.quote-bar.active{display:flex}
+.quote-bar-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.quote-bar-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem}
+.gchat-quote{background:rgba(108,92,231,.1);border-left:3px solid var(--accent);border-radius:4px;padding:4px 8px;font-size:.72rem;color:var(--muted);margin-bottom:5px}
+/* TYPING INDICATOR */
+.gchat-typing{padding:4px 16px;color:var(--muted);font-size:.74rem;min-height:20px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.gchat-typing-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--muted);margin:0 1px;animation:bounce .9s infinite}
+.gchat-typing-dots span:nth-child(2){animation-delay:.15s}
+.gchat-typing-dots span:nth-child(3){animation-delay:.3s}
+/* ONLINE COUNT */
+.gchat-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.online-badge{background:rgba(0,184,148,.12);border:1px solid rgba(0,184,148,.3);color:#00b894;border-radius:100px;padding:3px 10px;font-size:.72rem;font-weight:600}
+/* IMAGE IN GCHAT */
+.gchat-img{max-width:200px;border-radius:10px;margin-top:5px;display:block;cursor:pointer}
+.gchat-attach-btn{width:34px;height:34px;border-radius:9px;border:none;background:var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.gchat-attach-btn:hover{background:rgba(108,92,231,.2);color:var(--accent)}
+/* VOICE MSG */
+.voice-msg{display:flex;align-items:center;gap:8px;background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.2);border-radius:20px;padding:7px 12px;cursor:pointer;margin-top:4px;width:fit-content}
+.voice-play-btn{width:28px;height:28px;border-radius:50%;background:var(--accent);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.voice-bar{width:80px;height:18px;display:flex;align-items:center;gap:2px}
+.voice-bar span{display:inline-block;border-radius:2px;background:var(--accent);width:3px;animation:vbar .8s infinite alternate}
+.voice-bar span:nth-child(1){height:6px}.voice-bar span:nth-child(2){height:12px;animation-delay:.1s}
+.voice-bar span:nth-child(3){height:16px;animation-delay:.2s}.voice-bar span:nth-child(4){height:10px;animation-delay:.3s}
+.voice-bar span:nth-child(5){height:14px;animation-delay:.4s}
+@keyframes vbar{to{height:4px}}
+.voice-duration{font-size:.7rem;color:var(--muted)}
+.mic-recording{animation:mpulse 1s infinite;background:rgba(225,112,85,.2)!important;color:var(--red)!important}
+/* NOTIFICATION */
+.notif-wrap{position:relative;display:inline-flex}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:10px;height:10px;background:var(--red);border-radius:50%;border:2px solid var(--bg);display:none}
+.notif-badge.show{display:block}
+/* CHAT SEARCH */
+.chat-search-bar{display:none;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.chat-search-bar.active{display:flex;gap:8px;align-items:center}
+.chat-search-bar input{flex:1;padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Inter',sans-serif;font-size:.83rem;outline:none}
+.chat-search-bar input:focus{border-color:var(--accent)}
+.search-highlight{background:rgba(253,203,110,.3);border-radius:2px}
+/* PHOTO EDITOR */
+.photo-editor-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px}
+.photo-editor-overlay.active{display:flex}
+.photo-editor-canvas{border-radius:12px;border:1px solid var(--border);max-width:min(520px,90vw);max-height:55vh;object-fit:contain}
+.photo-editor-tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:560px}
+.photo-tool-btn{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:.78rem;font-family:'Inter',sans-serif;transition:.15s}
+.photo-tool-btn:hover,.photo-tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(108,92,231,.1)}
+.photo-editor-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.photo-editor-prompt{width:min(480px,90vw);padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:.84rem;outline:none}
+.photo-editor-prompt:focus{border-color:var(--accent)}
+.photo-editor-status{font-size:.78rem;color:var(--muted);text-align:center}
 /* AI FEATURE EXTRAS */
 .chat-toolbar{display:flex;gap:6px;padding:6px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;flex-shrink:0}
 .toolbar-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:5px 12px;font-size:.73rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:.15s}
@@ -302,7 +361,7 @@ body.mode-mobile .mobile-backdrop.show{display:block}
       <div class="nav-label"><b>Explore</b><small>In development</small></div>
     </div>
     <div class="nav-item" onclick="showGlobalChat()">
-      <span>🌐</span>
+      <span style="position:relative">🌐<span class="notif-badge" id="gchatNotifBadge"></span></span>
       <div class="nav-label"><b>Global Chat</b></div>
     </div>
     <div class="nav-item" onclick="showToolsPanel()">
@@ -327,18 +386,35 @@ body.mode-mobile .mobile-backdrop.show{display:block}
     <div class="pinned-bar" id="pinnedBar" onclick="scrollToPin()">
       📌 <span id="pinnedText"></span>
     </div>
+    <div class="chat-search-bar" id="chatSearchBar">
+      <input id="chatSearchInput" placeholder="🔍 Search messages..." oninput="searchMessages(this.value)" onkeydown="if(event.key==='Escape')toggleChatSearch()">
+      <button class="settings-mini-btn" onclick="toggleChatSearch()">✕</button>
+    </div>
     <div class="chat-toolbar" id="chatToolbar">
       <button class="toolbar-btn" onclick="summarizeChat()">📝 Summarize chat</button>
       <button class="toolbar-btn" onclick="showMemoryPanel()">🧠 Memories</button>
       <button class="toolbar-btn" onclick="quickTranslate()">🌍 Translate last</button>
       <button class="toolbar-btn" onclick="explainLast()">💡 Explain simpler</button>
+      <button class="toolbar-btn" onclick="toggleChatSearch()">🔍 Search</button>
     </div>
     <div class="chat-area" id="chatArea"></div>
 
     <!-- GLOBAL CHAT VIEW (hidden by default) -->
+    <div class="gchat-header" id="gchatHeader" style="display:none">
+      <span style="font-size:.82rem;font-weight:600;color:var(--muted)">🌐 Global Chat</span>
+      <span class="online-badge" id="onlineBadge">● 0 online</span>
+    </div>
     <div class="gchat-area" id="gchatArea" style="display:none"></div>
+    <div class="gchat-typing" id="gchatTyping" style="display:none"></div>
+    <div class="quote-bar" id="quoteBar">
+      <span>↩️</span><span class="quote-bar-text" id="quoteBarText"></span>
+      <button class="quote-bar-close" onclick="clearQuoteReply()">✕</button>
+    </div>
     <div class="gchat-input-row" id="gchatInputRow" style="display:none">
-      <input class="gchat-input" id="gchatInput" placeholder="Message everyone... (@WolfAI to ask AI)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGlobalMsg()}">
+      <input type="file" id="gchatFileInput" accept="image/*" style="display:none" onchange="handleGchatImage(event)">
+      <button class="gchat-attach-btn" onclick="document.getElementById('gchatFileInput').click()" title="Send image">📎</button>
+      <button class="gchat-attach-btn" id="gchatMicBtn" onclick="toggleGchatMic()" title="Voice message">🎙</button>
+      <input class="gchat-input" id="gchatInput" placeholder="Message everyone... (@WolfAI to ask AI)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendGlobalMsg()}" oninput="gchatTypingDebounce()">
       <button class="gchat-send" onclick="sendGlobalMsg()">➤</button>
     </div>
 
@@ -1606,30 +1682,86 @@ function showGlobalChat() {
   heroShowing = false; currentChatId = null;
   renderSidebarChats();
   document.getElementById('currentChatTitle').textContent = 'Global Chat';
+  gchatTabActive = true;
+  document.getElementById('gchatNotifBadge').classList.remove('show');
   // swap views
   document.getElementById('chatArea').style.display = 'none';
   document.getElementById('pinnedBar').style.display = 'none';
   document.getElementById('chatToolbar').style.display = 'none';
+  document.getElementById('chatSearchBar').style.display = 'none';
   document.getElementById('bottom').style.display = 'none';
+  document.getElementById('gchatHeader').style.display = 'flex';
   document.getElementById('gchatArea').style.display = 'flex';
+  document.getElementById('gchatTyping').style.display = 'flex';
   document.getElementById('gchatInputRow').style.display = 'flex';
+  document.getElementById('quoteBar').classList.remove('active');
   loadGlobalMessages();
+  updateOnlineCount();
   if (gchatListener) clearInterval(gchatListener);
-  gchatListener = setInterval(loadGlobalMessages, 3000);
+  gchatListener = setInterval(() => { loadGlobalMessages(); updateOnlineCount(); loadTypingIndicator(); }, 3000);
+  // heartbeat for online presence
+  gchatPresenceInterval = setInterval(() => {
+    const name = localStorage.getItem('wolfai_user_name');
+    if (name && FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+      fetch(`${FIREBASE_URL}/online/${toKey(name)}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, ts: Date.now() }) });
+    }
+  }, 15000);
+  const name = localStorage.getItem('wolfai_user_name');
+  if (name && FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    fetch(`${FIREBASE_URL}/online/${toKey(name)}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, ts: Date.now() }) });
+  }
   setTimeout(() => {
     const gi = document.getElementById('gchatInput');
     if (gi) { gi.focus(); gi.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendGlobalMsg(); } }; }
   }, 100);
 }
 
+let gchatPresenceInterval = null;
 function leaveGlobalChat() {
   if (gchatListener) { clearInterval(gchatListener); gchatListener = null; }
+  if (gchatPresenceInterval) { clearInterval(gchatPresenceInterval); gchatPresenceInterval = null; }
+  gchatTabActive = false;
+  clearQuoteReply();
   document.getElementById('chatArea').style.display = '';
   document.getElementById('pinnedBar').style.display = '';
   document.getElementById('chatToolbar').style.display = '';
+  document.getElementById('chatSearchBar').classList.remove('active');
+  document.getElementById('chatSearchBar').style.display = '';
   document.getElementById('bottom').style.display = '';
+  document.getElementById('gchatHeader').style.display = 'none';
   document.getElementById('gchatArea').style.display = 'none';
+  document.getElementById('gchatTyping').style.display = 'none';
   document.getElementById('gchatInputRow').style.display = 'none';
+  document.getElementById('quoteBar').classList.remove('active');
+}
+
+async function updateOnlineCount() {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  try {
+    const res = await fetch(`${FIREBASE_URL}/online.json`);
+    const data = await res.json();
+    if (!data) { document.getElementById('onlineBadge').textContent = '● 0 online'; return; }
+    const now = Date.now();
+    const active = Object.values(data).filter(u => (now - (u.ts || 0)) < 60000).length;
+    document.getElementById('onlineBadge').textContent = `● ${active} online`;
+  } catch(e) {}
+}
+
+async function loadTypingIndicator() {
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  const myKey = toKey(localStorage.getItem('wolfai_user_name') || '');
+  try {
+    const res = await fetch(`${FIREBASE_URL}/typing.json`);
+    const data = await res.json();
+    const el = document.getElementById('gchatTyping');
+    if (!el) return;
+    if (!data) { el.innerHTML = ''; return; }
+    const now = Date.now();
+    const typers = Object.values(data).filter(u => toKey(u.name) !== myKey && (now - (u.ts||0)) < 3000);
+    if (!typers.length) { el.innerHTML = ''; return; }
+    const names = typers.map(u => escHtml(u.name)).join(', ');
+    el.innerHTML = `<span>${names} ${typers.length > 1 ? 'are' : 'is'} typing</span><span class="gchat-typing-dots"><span></span><span></span><span></span></span>`;
+  } catch(e) {}
 }
 
 async function loadGlobalMessages() {
@@ -1639,21 +1771,73 @@ async function loadGlobalMessages() {
     const data = await res.json();
     const area = document.getElementById('gchatArea');
     if (!area || area.style.display === 'none') return;
-    if (!data || typeof data !== 'object') { area.innerHTML = `<div style="color:var(--muted);padding:20px;text-align:center;font-size:.82rem">No messages yet. Say hi! 👋</div>`; return; }
-    const myKey = toKey(localStorage.getItem('wolfai_user_name') || '');
-    const entries = Object.values(data).sort((a,b) => (a.ts||0) - (b.ts||0));
+    if (!data || typeof data !== 'object') {
+      area.innerHTML = `<div style="color:var(--muted);padding:20px;text-align:center;font-size:.82rem">No messages yet. Say hi! 👋</div>`;
+      return;
+    }
+    const myName = localStorage.getItem('wolfai_user_name') || '';
+    const myKey = toKey(myName);
+    const entries = Object.entries(data).sort((a,b) => (a[1].ts||0) - (b[1].ts||0));
+
+    // notification for new messages
+    if (!gchatTabActive && entries.length > lastGchatMsgCount && lastGchatMsgCount > 0) {
+      document.getElementById('gchatNotifBadge').classList.add('show');
+      playNotifSound();
+    }
+    lastGchatMsgCount = entries.length;
+
     const atBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 80;
-    area.innerHTML = entries.map(m => {
+    area.innerHTML = entries.map(([msgKey, m]) => {
       const mine = toKey(m.sender||'') === myKey;
       const isBot = m.sender === 'WolfAI';
       const avatarHtml = m.avatar ? `<img src="${m.avatar}">` : (m.sender||'?')[0].toUpperCase();
       const tagHtml = m.tag ? `<span class="tag">${escHtml(m.tag)}</span>` : '';
       const time = m.ts ? new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+
+      let contentHtml = '';
+      if (m.type === 'image' && m.imageData) {
+        contentHtml = `<img class="gchat-img" src="${m.imageData}" onclick="openPhotoEditor('${m.imageData.replace(/'/g,"\\'")}')">`;
+      } else if (m.type === 'voice' && m.voiceData) {
+        const dur = m.voiceDuration || 0;
+        contentHtml = `<div class="voice-msg" onclick="playVoiceMsg('${m.voiceData.replace(/'/g,"\\'")}')">
+          <button class="voice-play-btn">▶</button>
+          <div class="voice-bar"><span></span><span></span><span></span><span></span><span></span></div>
+          <span class="voice-duration">${dur}s</span></div>`;
+      } else {
+        contentHtml = renderMarkdownLite(m.text||'');
+      }
+
+      const quoteHtml = m.quoteText ? `<div class="gchat-quote"><b>${escHtml(m.quoteSender||'')}</b>: ${escHtml(m.quoteText.slice(0,80))}</div>` : '';
+
+      // reactions
+      let reactHtml = '';
+      if (m.reactions) {
+        reactHtml = '<div class="gchat-reactions">';
+        for (const [emojiCode, users] of Object.entries(m.reactions)) {
+          const emoji = String.fromCodePoint(parseInt(emojiCode));
+          const count = Object.keys(users).length;
+          const iMine = !!users[myKey];
+          reactHtml += `<span class="reaction-pill ${iMine?'mine':''}" onclick="addReaction('${msgKey}','${emoji}')">${emoji} ${count}</span>`;
+        }
+        reactHtml += '</div>';
+      }
+
+      const canDelete = mine || getUserRole(myName) === 'owner' || getUserRole(myName) === 'moderator';
+      const actionsHtml = `<div class="gchat-msg-actions">
+        <button class="gchat-act-btn" onclick="showReactionPicker('${msgKey}')">😊</button>
+        <button class="gchat-act-btn" onclick="setQuoteReply('${escHtml(m.sender||'')}','${escHtml((m.text||'').slice(0,80)).replace(/'/g,"\\'")}')">↩️</button>
+        ${canDelete ? `<button class="gchat-act-btn" onclick="deleteGchatMsg('${msgKey}')">🗑️</button>` : ''}
+      </div>`;
+
       return `<div class="gchat-msg ${mine?'mine':''} ${isBot?'bot-reply':''}">
         <div class="gchat-avatar">${avatarHtml}</div>
         <div class="gchat-body">
           <div class="gchat-meta">${escHtml(m.sender||'?')} ${tagHtml} <span>${time}</span></div>
-          <div class="gchat-bubble">${renderMarkdownLite(m.text||'')}</div>
+          <div class="gchat-bubble-wrap">
+            <div class="gchat-bubble">${quoteHtml}${contentHtml}</div>
+            ${reactHtml}
+            ${actionsHtml}
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -1673,11 +1857,15 @@ async function sendGlobalMsg() {
     : getUserRole(name) === 'owner' ? 'Owner'
     : getUserRole(name) === 'moderator' ? 'Moderator' : null;
   const msg = { sender: name, text, ts: Date.now(), avatar, tag };
+  if (pendingQuoteReply) { msg.quoteSender = pendingQuoteReply.sender; msg.quoteText = pendingQuoteReply.text; clearQuoteReply(); }
   if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
     await fetch(`${FIREBASE_URL}/globalChat.json`, {
       method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(msg)
     });
+    // clear typing indicator
+    fetch(`${FIREBASE_URL}/typing/${toKey(name)}.json`, { method:'DELETE' });
   }
+  loadGlobalMessages();
   // @WolfAI mention → AI reply
   if (/@wolfai/i.test(text)) {
     setTimeout(async () => {
@@ -2210,6 +2398,334 @@ function runHtmlSnippet(btn) {
   const blob = new Blob([code], {type:'text/html'});
   window.open(URL.createObjectURL(blob), '_blank');
 }
+
+// ── CHAT SEARCH ─────────────────────────────────────────────────
+let chatSearchActive = false;
+function toggleChatSearch() {
+  chatSearchActive = !chatSearchActive;
+  const bar = document.getElementById('chatSearchBar');
+  bar.classList.toggle('active', chatSearchActive);
+  if (chatSearchActive) { document.getElementById('chatSearchInput').focus(); }
+  else { document.getElementById('chatSearchInput').value = ''; searchMessages(''); }
+}
+function searchMessages(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('#chatArea .bubble').forEach(b => {
+    const el = b.cloneNode(true);
+    el.querySelectorAll('.msg-actions').forEach(a => a.remove());
+    const text = (el.innerText || el.textContent || '').toLowerCase();
+    const msg = b.closest('.msg');
+    if (!q) { msg.style.display = ''; b.innerHTML = b.innerHTML.replace(/<mark class="search-highlight">/g,'').replace(/<\/mark>/g,''); return; }
+    if (text.includes(q)) {
+      msg.style.display = '';
+      // simple highlight
+    } else {
+      msg.style.display = 'none';
+    }
+  });
+}
+
+// ── NOTIFICATION SOUND ──────────────────────────────────────────
+let lastGchatMsgCount = 0;
+let gchatTabActive = false;
+function playNotifSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    osc.start(); osc.stop(ctx.currentTime + 0.35);
+  } catch(e) {}
+}
+
+// ── GCHAT TYPING DEBOUNCE ───────────────────────────────────────
+let gchatTypingTimer = null;
+function gchatTypingDebounce() {
+  const name = localStorage.getItem('wolfai_user_name') || 'Someone';
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  fetch(`${FIREBASE_URL}/typing/${toKey(name)}.json`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, ts: Date.now() }) });
+  if (gchatTypingTimer) clearTimeout(gchatTypingTimer);
+  gchatTypingTimer = setTimeout(() => {
+    fetch(`${FIREBASE_URL}/typing/${toKey(name)}.json`, { method:'DELETE' });
+  }, 2500);
+}
+
+// ── GCHAT VOICE MESSAGE ─────────────────────────────────────────
+let gchatMediaRecorder = null;
+let gchatAudioChunks = [];
+let gchatRecording = false;
+function toggleGchatMic() {
+  if (gchatRecording) { stopGchatRecording(); return; }
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    gchatMediaRecorder = new MediaRecorder(stream);
+    gchatAudioChunks = [];
+    gchatMediaRecorder.ondataavailable = e => gchatAudioChunks.push(e.data);
+    gchatMediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(gchatAudioChunks, { type: 'audio/webm' });
+      const reader = new FileReader();
+      reader.onload = () => sendGchatVoice(reader.result, Math.round(blob.size / 1600));
+      reader.readAsDataURL(blob);
+    };
+    gchatMediaRecorder.start();
+    gchatRecording = true;
+    const btn = document.getElementById('gchatMicBtn');
+    btn.textContent = '⏹'; btn.classList.add('mic-recording');
+  }).catch(() => alert('Microphone access denied.'));
+}
+function stopGchatRecording() {
+  if (gchatMediaRecorder) gchatMediaRecorder.stop();
+  gchatRecording = false;
+  const btn = document.getElementById('gchatMicBtn');
+  btn.textContent = '🎙'; btn.classList.remove('mic-recording');
+}
+async function sendGchatVoice(dataUrl, duration) {
+  const name = localStorage.getItem('wolfai_user_name') || 'Guest';
+  const avatar = localStorage.getItem('wolfai_avatar') || null;
+  const msg = { sender: name, voiceData: dataUrl, voiceDuration: duration, ts: Date.now(), avatar, type: 'voice' };
+  if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+    await fetch(`${FIREBASE_URL}/globalChat.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(msg) });
+  }
+  loadGlobalMessages();
+}
+function playVoiceMsg(dataUrl) {
+  const audio = new Audio(dataUrl);
+  audio.play().catch(() => alert('Cannot play audio.'));
+}
+
+// ── GCHAT IMAGE SEND ────────────────────────────────────────────
+function handleGchatImage(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    // compress
+    const img = new Image(); img.src = reader.result;
+    img.onload = async () => {
+      const canvas = document.createElement('canvas');
+      const max = 600; const ratio = Math.min(max/img.width, max/img.height, 1);
+      canvas.width = img.width * ratio; canvas.height = img.height * ratio;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const data = canvas.toDataURL('image/jpeg', 0.8);
+      const name = localStorage.getItem('wolfai_user_name') || 'Guest';
+      const avatar = localStorage.getItem('wolfai_avatar') || null;
+      const tag = (() => { const customKey = userCustomRoles[toKey(name)]; return (customKey && customRoles[customKey]) ? customRoles[customKey].label : getUserRole(name) === 'owner' ? 'Owner' : getUserRole(name) === 'moderator' ? 'Moderator' : null; })();
+      const msg = { sender: name, imageData: data, ts: Date.now(), avatar, tag, type: 'image' };
+      if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+        await fetch(`${FIREBASE_URL}/globalChat.json`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(msg) });
+      }
+      loadGlobalMessages();
+    };
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+// ── QUOTE REPLY ─────────────────────────────────────────────────
+let pendingQuoteReply = null;
+function setQuoteReply(sender, text) {
+  pendingQuoteReply = { sender, text };
+  const bar = document.getElementById('quoteBar');
+  document.getElementById('quoteBarText').textContent = `${sender}: ${text.slice(0, 80)}`;
+  bar.classList.add('active');
+  document.getElementById('gchatInput').focus();
+}
+function clearQuoteReply() {
+  pendingQuoteReply = null;
+  document.getElementById('quoteBar').classList.remove('active');
+}
+
+// ── EMOJI REACTIONS ─────────────────────────────────────────────
+const REACTION_EMOJIS = ['👍','❤️','😂','😮','😢','🔥'];
+function showReactionPicker(msgKey) {
+  document.querySelectorAll('.reaction-picker-popup').forEach(e => e.remove());
+  const popup = document.createElement('div');
+  popup.className = 'reaction-picker-popup';
+  popup.style.cssText = 'position:fixed;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 12px;display:flex;gap:8px;font-size:1.3rem;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  popup.innerHTML = REACTION_EMOJIS.map(e => `<span style="cursor:pointer" onclick="addReaction('${msgKey}','${e}');this.closest('.reaction-picker-popup').remove()">${e}</span>`).join('');
+  document.body.appendChild(popup);
+  const closeHandler = (ev) => { if (!popup.contains(ev.target)) { popup.remove(); document.removeEventListener('click', closeHandler); } };
+  setTimeout(() => document.addEventListener('click', closeHandler), 10);
+}
+async function addReaction(msgKey, emoji) {
+  const name = localStorage.getItem('wolfai_user_name') || 'guest';
+  const key = toKey(name);
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  const path = `${FIREBASE_URL}/globalChat/${msgKey}/reactions/${emoji.codePointAt(0)}/${key}.json`;
+  await fetch(path, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(name) });
+  loadGlobalMessages();
+}
+async function deleteGchatMsg(msgKey) {
+  const name = localStorage.getItem('wolfai_user_name') || '';
+  if (!FIREBASE_URL || FIREBASE_URL.includes('PASTE_YOUR')) return;
+  // verify owner of msg
+  try {
+    const res = await fetch(`${FIREBASE_URL}/globalChat/${msgKey}.json`);
+    const m = await res.json();
+    if (!m) return;
+    if (toKey(m.sender) !== toKey(name) && getUserRole(name) !== 'owner' && getUserRole(name) !== 'moderator') { alert('You can only delete your own messages.'); return; }
+    await fetch(`${FIREBASE_URL}/globalChat/${msgKey}.json`, { method:'DELETE' });
+    loadGlobalMessages();
+  } catch(e) {}
+}
+
+// ── PHOTO EDITOR ────────────────────────────────────────────────
+let photoEditorOriginalImage = null;
+let photoEditorRotation = 0;
+let photoEditorFlipped = false;
+let photoEditorFilter = 'none';
+
+function openPhotoEditor(src) {
+  photoEditorOriginalImage = src || null;
+  photoEditorRotation = 0; photoEditorFlipped = false; photoEditorFilter = 'none';
+  document.getElementById('photoEditorStatus').textContent = '';
+  if (src) { drawPhotoEditor(src); }
+  document.getElementById('photoEditorOverlay').classList.add('active');
+  if (!src) {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*';
+    input.onchange = e => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { photoEditorOriginalImage = reader.result; drawPhotoEditor(reader.result); };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
+}
+function closePhotoEditor() { document.getElementById('photoEditorOverlay').classList.remove('active'); }
+function drawPhotoEditor(src) {
+  const canvas = document.getElementById('photoEditorCanvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image(); img.src = src;
+  img.onload = () => {
+    const maxW = Math.min(520, window.innerWidth * 0.88);
+    const maxH = window.innerHeight * 0.52;
+    const ratio = Math.min(maxW / img.width, maxH / img.height);
+    canvas.width = img.width * ratio; canvas.height = img.height * ratio;
+    ctx.save();
+    if (photoEditorRotation || photoEditorFlipped) {
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((photoEditorRotation * Math.PI) / 180);
+      if (photoEditorFlipped) ctx.scale(-1, 1);
+      ctx.drawImage(img, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+    } else {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+    ctx.restore();
+    applyCanvasFilter(ctx, canvas, photoEditorFilter);
+  };
+}
+function applyCanvasFilter(ctx, canvas, filter) {
+  if (filter === 'none') return;
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = imageData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i+1], b = d[i+2];
+    if (filter === 'grayscale') { const v = 0.299*r + 0.587*g + 0.114*b; d[i]=d[i+1]=d[i+2]=v; }
+    else if (filter === 'sepia') { d[i]=Math.min(255,r*.393+g*.769+b*.189); d[i+1]=Math.min(255,r*.349+g*.686+b*.168); d[i+2]=Math.min(255,r*.272+g*.534+b*.131); }
+    else if (filter === 'invert') { d[i]=255-r; d[i+1]=255-g; d[i+2]=255-b; }
+    else if (filter === 'warm') { d[i]=Math.min(255,r+30); d[i+2]=Math.max(0,b-20); }
+    else if (filter === 'cool') { d[i]=Math.max(0,r-20); d[i+2]=Math.min(255,b+30); }
+    else if (filter === 'bright') { d[i]=Math.min(255,r+40); d[i+1]=Math.min(255,g+40); d[i+2]=Math.min(255,b+40); }
+    else if (filter === 'contrast') { const f=1.5; d[i]=Math.min(255,Math.max(0,f*(r-128)+128)); d[i+1]=Math.min(255,Math.max(0,f*(g-128)+128)); d[i+2]=Math.min(255,Math.max(0,f*(b-128)+128)); }
+  }
+  ctx.putImageData(imageData, 0, 0);
+}
+function applyFilter(filter) {
+  photoEditorFilter = filter;
+  document.querySelectorAll('.photo-tool-btn').forEach(b => b.classList.remove('active'));
+  if (photoEditorOriginalImage) drawPhotoEditor(photoEditorOriginalImage);
+}
+function rotatePhoto() { photoEditorRotation = (photoEditorRotation + 90) % 360; if (photoEditorOriginalImage) drawPhotoEditor(photoEditorOriginalImage); }
+function flipPhoto() { photoEditorFlipped = !photoEditorFlipped; if (photoEditorOriginalImage) drawPhotoEditor(photoEditorOriginalImage); }
+function getEditedDataUrl() { return document.getElementById('photoEditorCanvas').toDataURL('image/jpeg', 0.9); }
+function downloadEditedPhoto() {
+  const a = document.createElement('a'); a.href = getEditedDataUrl(); a.download = 'wolfai_edited.jpg'; a.click();
+}
+function useEditedPhotoAsAvatar() {
+  const data = getEditedDataUrl();
+  localStorage.setItem('wolfai_avatar', data);
+  renderAvatarPreview(); renderUserRow();
+  syncAvatarToFirebase(data);
+  closePhotoEditor();
+  alert('Profile photo updated! ✅');
+}
+function sendEditedToChat() {
+  const data = getEditedDataUrl();
+  pendingAttachment = { type: 'image', mimeType: 'image/jpeg', base64: data.split(',')[1], name: 'edited_photo.jpg', previewUrl: data };
+  showAttachPreview('🖼️ edited_photo.jpg');
+  closePhotoEditor();
+}
+async function aiEditPhoto() {
+  const prompt = document.getElementById('photoEditPrompt').value.trim();
+  if (!prompt) { alert('Please describe what you want to do to the photo.'); return; }
+  if (!photoEditorOriginalImage) { alert('No photo loaded.'); return; }
+  const statusEl = document.getElementById('photoEditorStatus');
+  statusEl.textContent = '⏳ Asking AI to describe the edit…';
+  // Since free image generation API isn't available without cards, we use AI to describe what to do, then apply basic transforms
+  try {
+    const base64 = photoEditorOriginalImage.split(',')[1] || photoEditorOriginalImage;
+    const res = await fetch(WORKER_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [
+        { text: `The user wants to edit a photo with this instruction: "${prompt}". Based on this, which of these CSS-style filters should I apply? Choose one or more: grayscale, sepia, invert, warm, cool, bright, contrast, none. Reply with ONLY a JSON array like ["warm","bright"] or ["grayscale"]. Nothing else.` }
+      ]}]})
+    });
+    const data = await res.json();
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '["none"]';
+    const filters = JSON.parse(raw.trim().replace(/```json|```/g,'').trim());
+    if (Array.isArray(filters) && filters.length) {
+      filters.forEach(f => { if (f !== 'none') { photoEditorFilter = f; } });
+      drawPhotoEditor(photoEditorOriginalImage);
+      statusEl.textContent = `✅ Applied: ${filters.join(', ')}`;
+    }
+  } catch(e) { statusEl.textContent = '❌ AI edit failed. Try a manual filter.'; }
+}
+
+// Add photo editor button to chat toolbar
+document.addEventListener('DOMContentLoaded', () => {
+  const toolbar = document.getElementById('chatToolbar');
+  if (toolbar) {
+    const btn = document.createElement('button');
+    btn.className = 'toolbar-btn';
+    btn.textContent = '🖼️ Edit photo';
+    btn.onclick = () => openPhotoEditor(null);
+    toolbar.appendChild(btn);
+  }
+});
 </script>
+
+<!-- PHOTO EDITOR OVERLAY -->
+<div class="photo-editor-overlay" id="photoEditorOverlay">
+  <div style="display:flex;align-items:center;justify-content:space-between;width:min(520px,90vw)">
+    <h3 style="color:#fff;font-size:.95rem">🖼️ Photo Editor</h3>
+    <button onclick="closePhotoEditor()" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:7px;padding:5px 12px;cursor:pointer;font-size:.8rem">✕ Close</button>
+  </div>
+  <canvas id="photoEditorCanvas" class="photo-editor-canvas"></canvas>
+  <div class="photo-editor-tools">
+    <button class="photo-tool-btn" onclick="applyFilter('none')">Original</button>
+    <button class="photo-tool-btn" onclick="applyFilter('grayscale')">⬛ B&W</button>
+    <button class="photo-tool-btn" onclick="applyFilter('sepia')">🟫 Sepia</button>
+    <button class="photo-tool-btn" onclick="applyFilter('invert')">🔲 Invert</button>
+    <button class="photo-tool-btn" onclick="applyFilter('warm')">🔆 Warm</button>
+    <button class="photo-tool-btn" onclick="applyFilter('cool')">❄️ Cool</button>
+    <button class="photo-tool-btn" onclick="applyFilter('bright')">☀️ Bright</button>
+    <button class="photo-tool-btn" onclick="applyFilter('contrast')">◐ Contrast</button>
+    <button class="photo-tool-btn" onclick="rotatePhoto()">↩️ Rotate</button>
+    <button class="photo-tool-btn" onclick="flipPhoto()">⟺ Flip</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;width:min(480px,90vw)">
+    <input class="photo-editor-prompt" id="photoEditPrompt" placeholder="✨ AI edit: e.g. 'make it warm and bright', 'black and white'..." onkeydown="if(event.key==='Enter')aiEditPhoto()">
+    <button class="photo-tool-btn" onclick="aiEditPhoto()" style="white-space:nowrap">✨ AI</button>
+  </div>
+  <div class="photo-editor-status" id="photoEditorStatus"></div>
+  <div class="photo-editor-actions">
+    <button class="photo-tool-btn" onclick="downloadEditedPhoto()">⬇️ Download</button>
+    <button class="photo-tool-btn" onclick="useEditedPhotoAsAvatar()">👤 Set as avatar</button>
+    <button class="photo-tool-btn" onclick="sendEditedToChat()">💬 Send to chat</button>
+  </div>
+</div>
 </body>
-</html>
