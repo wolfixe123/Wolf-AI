@@ -340,7 +340,18 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 .artifact-tab{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.74rem;cursor:pointer;font-family:'Inter',sans-serif}
 .artifact-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .artifact-frame{flex:1;border:none;background:#fff}
-.artifact-code{flex:1;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#e8e8f0;overflow:auto;white-space:pre-wrap;word-break:break-word;background:var(--bg)}
+/* CODE EDITOR IN ARTIFACT */
+.artifact-code-editor{flex:1;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#e8e8f0;background:#0d0d18;border:none;outline:none;resize:none;width:100%;line-height:1.6;min-height:200px}
+.artifact-run-bar{display:flex;gap:8px;padding:8px 14px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;align-items:center;flex-wrap:wrap}
+.artifact-run-bar select{padding:5px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem}
+/* PERSONA ACTIVE BADGE */
+.persona-active-bar{display:none;padding:5px 16px;background:rgba(108,92,231,.12);border-bottom:1px solid rgba(108,92,231,.2);font-size:.74rem;color:var(--accent);align-items:center;gap:8px;flex-shrink:0}
+.persona-active-bar.show{display:flex}
+.persona-active-bar button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem;margin-left:auto}
+/* CODE QUICK BTNS */
+.code-quick-btns{display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 8px;flex-shrink:0}
+.code-quick-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--muted);padding:4px 12px;font-size:.72rem;cursor:pointer;font-family:Inter,sans-serif;transition:.15s;white-space:nowrap}
+.code-quick-btn:hover{border-color:var(--accent);color:var(--accent)}
 /* PROJECTS */
 .projects-panel{max-width:640px;margin:0 auto;width:100%;padding:10px}
 .project-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:12px}
@@ -460,6 +471,10 @@ body.mode-mobile .mobile-backdrop.show{display:block}
       <button class="icon-btn" style="width:28px;height:28px;font-size:13px" onclick="exportChat()" title="Export chat">💾</button>
       <div class="status"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
     </div>
+    <div class="persona-active-bar" id="personaActiveBar">
+      <span id="personaActiveText">🤖 WolfAI (Default)</span>
+      <button onclick="showPersonaPanel()">Change</button>
+    </div>
     <div class="pinned-bar" id="pinnedBar" onclick="scrollToPin()">
       📌 <span id="pinnedText"></span>
     </div>
@@ -473,6 +488,13 @@ body.mode-mobile .mobile-backdrop.show{display:block}
       <button class="toolbar-btn" onclick="quickTranslate()">🌍 Translate last</button>
       <button class="toolbar-btn" onclick="explainLast()">💡 Explain simpler</button>
       <button class="toolbar-btn" onclick="toggleChatSearch()">🔍 Search</button>
+    </div>
+    <div class="code-quick-btns" id="codeQuickBtns" style="display:none">
+      <span style="font-size:.7rem;color:var(--muted);align-self:center">⚡ Code:</span>
+      <button class="code-quick-btn" onclick="askCode('Write me a simple HTML page with CSS animations')">🌐 HTML page</button>
+      <button class="code-quick-btn" onclick="askCode('Write me a JavaScript function that')">⚡ JS function</button>
+      <button class="code-quick-btn" onclick="askCode('Write CSS for a modern card component')">🎨 CSS component</button>
+      <button class="code-quick-btn" onclick="openCodeEditor()">✏️ Open editor</button>
     </div>
     <div class="chat-area" id="chatArea"></div>
 
@@ -761,6 +783,7 @@ function renderModNav() {
     </div>`;
 }
 function createNewChat() {
+  if (typeof closeAllPanels === 'function') closeAllPanels();
   if (modPollInterval) { clearInterval(modPollInterval); modPollInterval = null; }
   leaveGlobalChat();
   currentChatId = null;
@@ -773,7 +796,13 @@ function createNewChat() {
   renderSidebarChats();
 }
 function showHeroState() {
+  if (typeof closeAllPanels === 'function') closeAllPanels();
   heroShowing = true;
+  // restore chat UI
+  document.getElementById('chatArea').style.display = '';
+  document.getElementById('chatToolbar').style.display = '';
+  document.getElementById('bottom').style.display = '';
+  document.getElementById('pinnedBar').style.display = '';
   const name = localStorage.getItem('wolfai_user_name') || 'there';
   document.getElementById('chatArea').innerHTML = `
     <div class="hero-state">
@@ -1498,6 +1527,7 @@ function handleReply(raw) {
     finalHtml = renderMarkdownLite(reply);
   }
   addMsg('bot', finalHtml);
+  postProcessBotMsg(finalHtml);
   persistDisplay('bot', finalHtml);
   speak(stripTags(reply));
   // suggested follow-ups (async, non-blocking)
@@ -1799,6 +1829,7 @@ function leaveGlobalChat() {
   if (gchatPresenceInterval) { clearInterval(gchatPresenceInterval); gchatPresenceInterval = null; }
   gchatTabActive = false;
   clearQuoteReply();
+  if (typeof closeAllPanels === 'function') closeAllPanels();
   document.getElementById('chatArea').style.display = '';
   document.getElementById('pinnedBar').style.display = '';
   document.getElementById('chatToolbar').style.display = '';
@@ -1924,47 +1955,83 @@ async function loadGlobalMessages() {
 
 async function sendGlobalMsg() {
   const input = document.getElementById('gchatInput');
+  if (!input) return;
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
   const name = localStorage.getItem('wolfai_user_name') || 'Guest';
   const avatar = localStorage.getItem('wolfai_avatar') || null;
   const customKey = userCustomRoles[toKey(name)];
-  const tag = customKey && customRoles[customKey] ? customRoles[customKey].label
+  const tag = (customKey && customRoles[customKey]) ? customRoles[customKey].label
     : getUserRole(name) === 'owner' ? 'Owner'
     : getUserRole(name) === 'moderator' ? 'Moderator' : null;
   const msg = { sender: name, text, ts: Date.now(), avatar, tag };
   if (pendingQuoteReply) { msg.quoteSender = pendingQuoteReply.sender; msg.quoteText = pendingQuoteReply.text; clearQuoteReply(); }
+
+  // Try Firebase, fall back to local render
+  let savedToFirebase = false;
   if (FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
-    await fetch(`${FIREBASE_URL}/globalChat.json`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(msg)
-    });
-    // clear typing indicator
-    fetch(`${FIREBASE_URL}/typing/${toKey(name)}.json`, { method:'DELETE' });
+    try {
+      const r = await fetch(`${FIREBASE_URL}/globalChat.json`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg)
+      });
+      if (r.ok) { savedToFirebase = true; }
+      fetch(`${FIREBASE_URL}/typing/${toKey(name)}.json`, { method: 'DELETE' }).catch(()=>{});
+    } catch(e) { /* Firebase offline — use local */ }
   }
-  loadGlobalMessages();
+
+  if (savedToFirebase) {
+    loadGlobalMessages();
+  } else {
+    // Local fallback: render directly
+    renderLocalGchatMsg(msg);
+  }
+
   // @WolfAI mention → AI reply
   if (/@wolfai/i.test(text)) {
     setTimeout(async () => {
       try {
-        const question = text.replace(/@wolfai/gi,'').trim();
+        const question = text.replace(/@wolfai/gi, '').trim() || text;
         const res = await fetch(WORKER_URL, {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ contents:[{role:'user',parts:[{text:question}]}], systemInstruction:{parts:[{text:buildSystemPrompt()}]} })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: question }] }] })
         });
-        if (!res.ok) return;
         const data = await res.json();
         const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        if (reply && FIREBASE_URL && !FIREBASE_URL.includes('PASTE_YOUR')) {
+        if (!reply) return;
+        const botMsg = { sender: 'WolfAI', text: reply, ts: Date.now(), avatar: null, tag: 'AI' };
+        if (savedToFirebase && FIREBASE_URL) {
           await fetch(`${FIREBASE_URL}/globalChat.json`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ sender:'WolfAI', text: reply, ts: Date.now(), avatar: null, tag: 'AI' })
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(botMsg)
           });
           loadGlobalMessages();
+        } else {
+          renderLocalGchatMsg(botMsg);
         }
       } catch(e) {}
-    }, 800);
+    }, 600);
   }
+}
+
+function renderLocalGchatMsg(m) {
+  const area = document.getElementById('gchatArea');
+  if (!area) return;
+  const myKey = toKey(localStorage.getItem('wolfai_user_name') || '');
+  const mine = toKey(m.sender || '') === myKey;
+  const isBot = m.sender === 'WolfAI';
+  const avatarHtml = m.avatar ? `<img src="${m.avatar}">` : (m.sender || '?')[0].toUpperCase();
+  const tagHtml = m.tag ? `<span class="tag">${escHtml(m.tag)}</span>` : '';
+  const time = new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const div = document.createElement('div');
+  div.className = `gchat-msg ${mine ? 'mine' : ''} ${isBot ? 'bot-reply' : ''}`;
+  div.innerHTML = `
+    <div class="gchat-avatar">${avatarHtml}</div>
+    <div class="gchat-body">
+      <div class="gchat-meta">${escHtml(m.sender || '?')} ${tagHtml} <span>${time}</span></div>
+      <div class="gchat-bubble-wrap"><div class="gchat-bubble">${renderMarkdownLite(m.text || '')}</div></div>
+    </div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
 }
 
 // ── TOOL POPUP ────────────────────────────────────────────────────
@@ -2499,35 +2566,59 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── PANEL HELPER ──────────────────────────────────────────────
-function showGenericPanel(id, titleEl, contentHtml) {
-  leaveGlobalChat();
-  if (typeof leaveToolsPanel === 'function') leaveToolsPanel();
-  heroShowing = false; currentChatId = null;
-  renderSidebarChats();
-  document.getElementById('currentChatTitle').textContent = titleEl;
-  document.getElementById('chatArea').style.display = 'none';
-  document.getElementById('chatToolbar').style.display = 'none';
-  document.getElementById('chatSearchBar').classList.remove('active');
-  document.getElementById('bottom').style.display = 'none';
-  document.getElementById('pinnedBar').style.display = 'none';
-  let panel = document.getElementById(id);
-  if (!panel) {
-    panel = document.createElement('div');
-    panel.id = id;
-    panel.style.cssText = 'flex:1;overflow-y:auto;padding:16px 20px';
-    document.querySelector('.main-area').insertBefore(panel, document.getElementById('gchatHeader'));
-  }
-  panel.innerHTML = contentHtml;
-  panel.style.display = 'block';
-  return panel;
-}
-function hideAllPanels() {
-  ['projectsPanel','personaPanel','researchPanel','imagegenPanel','remindersPanel','fileAnalysisPanel'].forEach(id => {
+const PANEL_IDS = ['projectsPanel','personaPanel','researchPanel','imagegenPanel','remindersPanel','fileAnalysisPanel','genericPanel'];
+let activePanelId = null;
+
+function closeAllPanels() {
+  PANEL_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+  activePanelId = null;
+}
+
+function showGenericPanel(id, titleEl, contentHtml) {
+  // Leave global chat if open
+  if (typeof leaveGlobalChat === 'function') {
+    const gchatArea = document.getElementById('gchatArea');
+    if (gchatArea && gchatArea.style.display !== 'none') leaveGlobalChat();
+  }
+  heroShowing = false; currentChatId = null;
+  renderSidebarChats();
+  document.getElementById('currentChatTitle').textContent = titleEl;
+
+  // Hide chat + input
+  document.getElementById('chatArea').style.display = 'none';
+  document.getElementById('chatToolbar').style.display = 'none';
+  document.getElementById('chatSearchBar').classList.remove('active');
+  document.getElementById('chatSearchBar').style.display = 'none';
+  document.getElementById('bottom').style.display = 'none';
+  document.getElementById('pinnedBar').style.display = 'none';
+
+  // Close any previously open panel
+  closeAllPanels();
+
+  // Reuse or create shared panel container
+  let panel = document.getElementById('genericPanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'genericPanel';
+    panel.style.cssText = 'flex:1;overflow-y:auto;padding:16px 20px';
+    const gchatHeader = document.getElementById('gchatHeader');
+    document.querySelector('.main-area').insertBefore(panel, gchatHeader);
+  }
+  panel.id = id; // rename so callers can find it by expected id
+  panel.innerHTML = contentHtml;
+  panel.style.display = 'block';
+  activePanelId = id;
+  return panel;
+}
+
+function hideAllPanels() {
+  closeAllPanels();
   document.getElementById('chatArea').style.display = '';
   document.getElementById('chatToolbar').style.display = '';
+  document.getElementById('chatSearchBar').style.display = '';
   document.getElementById('bottom').style.display = '';
   document.getElementById('pinnedBar').style.display = '';
 }
@@ -2600,7 +2691,12 @@ function getProjectInstruction() {
 
 // Inject project instruction into system prompt
 const _origBuildSystemPrompt = buildSystemPrompt;
-function buildSystemPrompt() { return _origBuildSystemPrompt() + getProjectInstruction(); }
+function buildSystemPrompt() {
+  const base = _origBuildSystemPrompt();
+  const persona = getPersonaPrompt();
+  const project = getProjectInstruction();
+  return base + (persona ? `\n\nPersona: ${persona}` : '') + project;
+}
 
 // Render folder list in sidebar
 function renderFolderList() {
@@ -2633,7 +2729,7 @@ function showPersonaPanel() {
       <p style="color:var(--muted);font-size:.8rem;margin-bottom:16px">Choose how WolfAI behaves. Each persona has a different personality and style.</p>
       <div class="persona-grid">
         ${PERSONAS.map(p => `
-        <div class="persona-card ${p.id === activePersonaId ? 'selected' : ''}" onclick="selectPersona('${p.id}')">
+        <div class="persona-card ${p.id === activePersonaId ? 'selected' : ''}" onclick="selectPersona('${p.id}',this)">
           <div class="persona-emoji">${p.emoji}</div>
           <div class="persona-name">${p.name}</div>
           <div class="persona-desc">${p.desc}</div>
@@ -2646,12 +2742,16 @@ function showPersonaPanel() {
       </div>
     </div>`;
 }
-function selectPersona(id) {
+function selectPersona(id, cardEl) {
   activePersonaId = id; localStorage.setItem('wolfai_persona', id);
   document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
+  if (cardEl) cardEl.classList.add('selected');
   const p = PERSONAS.find(p => p.id === id);
-  addMsg('bot', `✅ Switched to **${p.name}** persona! ${p.emoji}`);
+  if (p) {
+    // Show feedback in status bar instead of switching away from panel
+    const statusText = document.getElementById('statusText');
+    if (statusText) { statusText.textContent = `${p.emoji} ${p.name} active`; setTimeout(() => statusText.textContent = 'Ready', 2500); }
+  }
 }
 function saveCustomPersona() {
   const val = document.getElementById('customPersonaInput')?.value?.trim(); if (!val) return;
@@ -2663,10 +2763,6 @@ function getPersonaPrompt() {
   if (activePersonaId === 'custom') return localStorage.getItem('wolfai_custom_persona') || '';
   return PERSONAS.find(p => p.id === activePersonaId)?.prompt || '';
 }
-
-// Patch buildSystemPrompt to include persona
-const _origBSP2 = buildSystemPrompt;
-function buildSystemPrompt() { const p = getPersonaPrompt(); return _origBSP2() + (p ? `\n\nPersona override: ${p}` : ''); }
 
 // ── DEEP RESEARCH ─────────────────────────────────────────────
 function showResearchPanel() {
@@ -2687,43 +2783,45 @@ async function startResearch() {
   const q = document.getElementById('researchInput')?.value?.trim(); if (!q) return;
   const stepsEl = document.getElementById('researchSteps');
   const resultEl = document.getElementById('researchResult');
+  if (!stepsEl || !resultEl) return;
   stepsEl.style.display = 'block'; resultEl.style.display = 'none';
   const steps = [
-    { label: 'Understanding the topic', done: false },
-    { label: 'Identifying key areas', done: false },
-    { label: 'Researching background', done: false },
-    { label: 'Analyzing key points', done: false },
-    { label: 'Compiling findings', done: false },
-    { label: 'Writing report', done: false },
+    'Understanding the topic',
+    'Identifying key areas',
+    'Researching background',
+    'Analyzing key points',
+    'Compiling findings',
+    'Writing report',
   ];
-  function renderSteps(activeIdx) {
-    stepsEl.innerHTML = steps.map((s, i) => `
-      <div class="research-step ${i < activeIdx ? 'done' : i === activeIdx ? 'active' : ''}">
-        <span class="step-icon">${i < activeIdx ? '✅' : i === activeIdx ? '⏳' : '○'}</span>
-        <span>${s.label}</span>
+  for (let i = 0; i <= steps.length; i++) {
+    stepsEl.innerHTML = steps.map((s, idx) => `
+      <div class="research-step ${idx < i ? 'done' : idx === i ? 'active' : ''}">
+        <span class="step-icon">${idx < i ? '✅' : idx === i ? '⏳' : '○'}</span>
+        <span>${s}</span>
       </div>`).join('');
+    if (i < steps.length) await new Promise(r => setTimeout(r, 600));
   }
-  for (let i = 0; i < steps.length; i++) {
-    renderSteps(i);
-    await new Promise(r => setTimeout(r, 700));
-    steps[i].done = true;
-  }
-  renderSteps(steps.length);
   try {
     const res = await fetch(WORKER_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `Write a thorough, well-structured research report on: "${q}". Include: Introduction, Background, Key Points (at least 4), Analysis, Conclusion. Use markdown headings and bullet points. Be comprehensive and informative.` }] }] })
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: `Write a thorough, well-structured research report on: "${q}". Include: ## Introduction, ## Background, ## Key Points (at least 4 bullet points), ## Analysis, ## Conclusion. Use markdown headings and bullet points. Be comprehensive and at least 400 words.` }] }]
+      })
     });
     const data = await res.json();
-    const report = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Research failed.';
-    resultEl.style.display = 'block';
-    resultEl.innerHTML = `<h3 style="margin-bottom:12px;color:var(--accent)">📄 Research Report: ${escHtml(q)}</h3>` + renderMarkdownLite(report) +
+    const report = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!report) throw new Error('Empty response');
+    resultEl.style.cssText = 'display:block;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.84rem;line-height:1.7;margin-top:12px';
+    resultEl.innerHTML = `<h3 style="margin-bottom:12px;color:var(--accent)">📄 ${escHtml(q)}</h3>` + renderMarkdownLite(report) +
       `<div style="margin-top:14px;display:flex;gap:8px">
         <button class="toolbar-btn" onclick="sendResearchToChat()">💬 Send to Chat</button>
         <button class="toolbar-btn" onclick="exportResearchPDF()">📄 Export</button>
       </div>`;
     window._lastResearch = { q, report };
-  } catch(e) { resultEl.style.display='block'; resultEl.textContent = 'Research failed. Check connection.'; }
+  } catch(e) {
+    resultEl.style.cssText = 'display:block;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--red);margin-top:12px';
+    resultEl.textContent = '❌ Research failed. Check your connection and try again.';
+  }
 }
 function sendResearchToChat() {
   if (!window._lastResearch) return;
@@ -2736,48 +2834,182 @@ function exportResearchPDF() {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'research_report.txt'; a.click();
 }
 
-// ── CANVAS / ARTIFACT ─────────────────────────────────────────
+// ── PERSONA ACTIVE BAR ────────────────────────────────────────
+function updatePersonaBar() {
+  const bar = document.getElementById('personaActiveBar');
+  const txt = document.getElementById('personaActiveText');
+  if (!bar || !txt) return;
+  const p = PERSONAS.find(p => p.id === activePersonaId);
+  const name = p ? `${p.emoji} ${p.name}` : activePersonaId === 'custom' ? '✏️ Custom persona' : '🤖 WolfAI (Default)';
+  const isDefault = activePersonaId === 'default';
+  bar.classList.toggle('show', !isDefault);
+  txt.textContent = `Active persona: ${name}`;
+}
+
+// Patch selectPersona to update bar
+const _origSelectPersona = selectPersona;
+function selectPersona(id, cardEl) {
+  _origSelectPersona(id, cardEl);
+  updatePersonaBar();
+  showCodeQuickBtns(id);
+}
+
+function showCodeQuickBtns(personaId) {
+  const el = document.getElementById('codeQuickBtns');
+  if (!el) return;
+  el.style.display = personaId === 'coder' ? 'flex' : 'none';
+}
+
+// ── CODE WRITING FEATURES ─────────────────────────────────────
+function askCode(prompt) {
+  const input = document.getElementById('userInput');
+  if (input) {
+    input.value = prompt;
+    input.focus();
+    autoResize(input);
+  }
+}
+
+function openCodeEditor(code, lang) {
+  openArtifact(code || '<!-- Write your HTML here -->\n<h1>Hello World</h1>\n<style>\n  body { font-family: sans-serif; }\n</style>', lang || 'html', 'Code Editor');
+  switchArtifactTab('code');
+}
+
+// ── ARTIFACT PANEL (full rewrite) ─────────────────────────────
 let artifactCode = '', artifactType = 'html';
-function openArtifact(code, type='html', title='Artifact') {
-  artifactCode = code; artifactType = type;
-  document.getElementById('artifactTitle').textContent = title;
-  document.getElementById('artifactIcon').textContent = type === 'html' ? '🌐' : type === 'chart' ? '📊' : '📄';
+let codeEditorDebounce = null;
+
+function openArtifact(code, type, title) {
+  artifactCode = code || ''; artifactType = type || 'html';
+  document.getElementById('artifactTitle').textContent = title || 'Artifact';
+  document.getElementById('artifactIcon').textContent = type === 'html' ? '🌐' : type === 'js' ? '⚡' : type === 'css' ? '🎨' : '📄';
   document.getElementById('artifactOverlay').classList.add('active');
   switchArtifactTab('preview');
 }
+
 function closeArtifact() { document.getElementById('artifactOverlay').classList.remove('active'); }
+
 function switchArtifactTab(tab) {
-  document.getElementById('tabPreview').classList.toggle('active', tab==='preview');
-  document.getElementById('tabCode').classList.toggle('active', tab==='code');
-  document.getElementById('artifactFrame').style.display = tab==='preview' ? 'block' : 'none';
-  document.getElementById('artifactCodeView').style.display = tab==='code' ? 'block' : 'none';
+  const previewBtn = document.getElementById('tabPreview');
+  const codeBtn = document.getElementById('tabCode');
+  const frame = document.getElementById('artifactFrame');
+  const editor = document.getElementById('artifactCodeEditor');
+  const runBar = document.getElementById('artifactRunBar');
+
+  previewBtn.classList.toggle('active', tab === 'preview');
+  codeBtn.classList.toggle('active', tab === 'code');
+
   if (tab === 'preview') {
-    const frame = document.getElementById('artifactFrame');
-    frame.srcdoc = artifactCode;
+    frame.style.display = 'block';
+    editor.style.display = 'none';
+    runBar.style.display = 'none';
+    renderArtifactPreview(artifactCode, artifactType);
   } else {
-    document.getElementById('artifactCodeView').textContent = artifactCode;
+    frame.style.display = 'none';
+    editor.style.display = 'block';
+    runBar.style.display = 'flex';
+    editor.value = artifactCode;
+    // set lang select
+    const sel = document.getElementById('artifactLangSelect');
+    if (sel) sel.value = ['html','js','css'].includes(artifactType) ? artifactType : 'html';
   }
 }
-function copyArtifactCode() { navigator.clipboard.writeText(artifactCode).then(() => alert('Code copied!')); }
-function downloadArtifact() {
-  const ext = artifactType === 'html' ? 'html' : 'txt';
-  const blob = new Blob([artifactCode], {type:'text/'+ext});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `artifact.${ext}`; a.click();
+
+function renderArtifactPreview(code, type) {
+  const frame = document.getElementById('artifactFrame');
+  if (type === 'js') {
+    frame.srcdoc = `<!DOCTYPE html><html><body><script>
+try { ${code} } catch(e) { document.body.innerHTML = '<pre style="color:red">'+e+'</pre>'; }
+<\/script></body></html>`;
+  } else if (type === 'css') {
+    frame.srcdoc = `<!DOCTYPE html><html><head><style>${code}</style></head><body>
+<div class="box"><h1>CSS Preview</h1><p>This is a paragraph.</p><button>Button</button></div>
+</body></html>`;
+  } else {
+    frame.srcdoc = code;
+  }
 }
+
+function onCodeEditorInput(el) {
+  artifactCode = el.value;
+  // Live preview with debounce
+  if (codeEditorDebounce) clearTimeout(codeEditorDebounce);
+  const status = document.getElementById('artifactRunStatus');
+  if (status) status.textContent = '⏳ Auto-running…';
+  codeEditorDebounce = setTimeout(() => {
+    renderArtifactPreview(artifactCode, artifactType);
+    if (status) status.textContent = '✅ Live preview updated';
+    setTimeout(() => { if (status) status.textContent = ''; }, 2000);
+  }, 800);
+}
+
+function runEditedCode() {
+  artifactCode = document.getElementById('artifactCodeEditor')?.value || artifactCode;
+  renderArtifactPreview(artifactCode, artifactType);
+  switchArtifactTab('preview');
+}
+
+function updateArtifactLang() {
+  const sel = document.getElementById('artifactLangSelect');
+  if (sel) artifactType = sel.value;
+}
+
+async function aiImproveCode() {
+  const code = document.getElementById('artifactCodeEditor')?.value || artifactCode;
+  const status = document.getElementById('artifactRunStatus');
+  if (status) status.textContent = '✨ AI improving…';
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `Improve this ${artifactType} code. Fix bugs, improve styling, make it look better. Return ONLY the improved code, no explanation, no markdown fences:\n\n${code}` }] }] })
+    });
+    const data = await res.json();
+    let improved = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    // Strip markdown fences if present
+    improved = improved.replace(/^```[\w]*\n?/,'').replace(/\n?```$/,'').trim();
+    if (improved) {
+      artifactCode = improved;
+      document.getElementById('artifactCodeEditor').value = improved;
+      renderArtifactPreview(improved, artifactType);
+      if (status) status.textContent = '✅ Improved!';
+      setTimeout(() => { if (status) status.textContent = ''; }, 2500);
+    }
+  } catch(e) { if (status) status.textContent = '❌ Failed'; }
+}
+
+function copyArtifactCode() {
+  navigator.clipboard.writeText(artifactCode).then(() => {
+    const status = document.getElementById('artifactRunStatus');
+    if (status) { status.textContent = '✅ Copied!'; setTimeout(() => status.textContent='', 2000); }
+  });
+}
+
+function downloadArtifact() {
+  const ext = artifactType === 'js' ? 'js' : artifactType === 'css' ? 'css' : 'html';
+  const blob = new Blob([artifactCode], { type: 'text/' + (ext === 'html' ? 'html' : 'plain') });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wolfai_artifact.${ext}`; a.click();
+}
+
 // Detect artifact/canvas code blocks in AI replies
 function detectAndRenderArtifact(text) {
-  const htmlMatch = text.match(/```html\n([\s\S]*?)```/i);
-  const svgMatch = text.match(/```svg\n([\s\S]*?)```/i);
-  if (htmlMatch || svgMatch) {
-    const code = htmlMatch ? htmlMatch[1] : svgMatch[1];
-    const type = svgMatch ? 'svg' : 'html';
-    const title = type === 'svg' ? 'SVG Preview' : 'HTML Preview';
-    return `<button class="run-code-btn" onclick="openArtifact(${JSON.stringify(code)},'${type}','${title}')">🖼️ Open in Canvas</button>`;
-  }
-  return '';
+  const htmlMatch = text.match(/```html\n?([\s\S]*?)```/i);
+  const jsMatch = text.match(/```(?:javascript|js)\n?([\s\S]*?)```/i);
+  const cssMatch = text.match(/```css\n?([\s\S]*?)```/i);
+  const svgMatch = text.match(/```svg\n?([\s\S]*?)```/i);
+  const match = htmlMatch || svgMatch || jsMatch || cssMatch;
+  if (!match) return '';
+  const code = match[1].trim();
+  const type = jsMatch ? 'js' : cssMatch ? 'css' : 'html';
+  const label = jsMatch ? '⚡ Run JS' : cssMatch ? '🎨 Preview CSS' : '🌐 Open in Canvas';
+  const title = jsMatch ? 'JavaScript' : cssMatch ? 'CSS Preview' : 'HTML Preview';
+  // Safe JSON embedding
+  const safeCode = JSON.stringify(code);
+  return `<button class="run-code-btn" onclick="openArtifact(${safeCode},'${type}','${title}')">${label}</button>`;
 }
-// Patch handleReply to detect artifacts
-const _origHandleReply = typeof handleReply === 'function' ? handleReply : null;
+
+// ── SYSTEM PROMPT PATCH FOR CODE ─────────────────────────────
+// When persona is 'coder', AI will include code blocks naturally
+// Ensure code blocks are detected and shown in canvas
 
 // ── IMAGE GENERATION ──────────────────────────────────────────
 function showImageGenPanel() {
@@ -2810,34 +3042,63 @@ function showImageGenPanel() {
     </div>`;
 }
 async function generateImage() {
-  const prompt = document.getElementById('imgPrompt')?.value?.trim(); if (!prompt) return;
+  const rawPrompt = document.getElementById('imgPrompt')?.value?.trim(); if (!rawPrompt) return;
   const style = document.getElementById('imgStyle')?.value || '';
-  const fullPrompt = encodeURIComponent(prompt + style);
   const resultEl = document.getElementById('imgResult');
-  resultEl.innerHTML = '<div class="imagegen-placeholder">⏳ Generating… (may take 10-20s)</div>';
-  document.getElementById('imgActions').style.display = 'none';
-  const url = `https://image.pollinations.ai/prompt/${fullPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
+  const actionsEl = document.getElementById('imgActions');
+  resultEl.innerHTML = '<div class="imagegen-placeholder">✨ Enhancing your prompt with AI…</div>';
+  actionsEl.style.display = 'none';
+
+  // Step 1: AI-enhance the prompt
+  let finalPrompt = rawPrompt + style;
+  try {
+    const enhRes = await fetch(WORKER_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `Rewrite this image prompt to be more detailed and vivid for an AI image generator. Keep it under 100 words. Only output the prompt, nothing else: "${rawPrompt}${style}"` }] }] })
+    });
+    const enhData = await enhRes.json();
+    const enhanced = enhData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (enhanced && enhanced.length > 10) finalPrompt = enhanced;
+  } catch(e) { /* use raw prompt */ }
+
+  resultEl.innerHTML = '<div class="imagegen-placeholder">🎨 Generating image… (10-20s)</div>';
+  const seed = Math.floor(Math.random() * 999999);
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=512&height=512&nologo=true&seed=${seed}&model=flux`;
+
   const img = new Image();
+  img.crossOrigin = 'anonymous';
   img.onload = () => {
-    resultEl.innerHTML = ''; resultEl.appendChild(img);
-    img.style.cssText = 'width:100%;border-radius:14px;display:block';
-    const actionsEl = document.getElementById('imgActions');
-    actionsEl.style.display = 'flex';
-    document.getElementById('imgDownloadBtn').onclick = () => { const a=document.createElement('a');a.href=url;a.download='wolfai_image.jpg';a.target='_blank';a.click(); };
+    resultEl.innerHTML = '';
+    img.style.cssText = 'width:100%;display:block;border-radius:14px';
+    resultEl.appendChild(img);
+    actionsEl.style.cssText = 'display:flex;margin-top:10px;gap:8px;flex-wrap:wrap';
+
+    document.getElementById('imgDownloadBtn').onclick = () => {
+      const a = document.createElement('a'); a.href = url; a.download = 'wolfai_image.jpg'; a.target = '_blank'; a.click();
+    };
     document.getElementById('imgChatBtn').onclick = () => {
-      pendingAttachment = { type:'image', mimeType:'image/jpeg', base64:null, name:'generated.jpg', previewUrl:url, remoteUrl:url };
-      showAttachPreview('🖼️ generated image');
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      const data = canvas.toDataURL('image/jpeg', 0.9);
+      pendingAttachment = { type: 'image', mimeType: 'image/jpeg', base64: data.split(',')[1], name: 'generated.jpg', previewUrl: data };
+      showAttachPreview('🖼️ AI generated image');
       createNewChat();
     };
     document.getElementById('imgAvatarBtn').onclick = () => {
-      const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;
-      canvas.getContext('2d').drawImage(img,0,0,128,128);
-      const data=canvas.toDataURL('image/jpeg',0.85);
-      localStorage.setItem('wolfai_avatar',data);renderAvatarPreview();renderUserRow();syncAvatarToFirebase(data);
+      const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128;
+      canvas.getContext('2d').drawImage(img, 0, 0, 128, 128);
+      const data = canvas.toDataURL('image/jpeg', 0.85);
+      localStorage.setItem('wolfai_avatar', data);
+      if (typeof renderAvatarPreview === 'function') renderAvatarPreview();
+      if (typeof renderUserRow === 'function') renderUserRow();
+      if (typeof syncAvatarToFirebase === 'function') syncAvatarToFirebase(data);
       alert('Avatar updated! ✅');
     };
   };
-  img.onerror = () => { resultEl.innerHTML = '<div class="imagegen-placeholder">❌ Generation failed. Try a different prompt.</div>'; };
+  img.onerror = () => {
+    resultEl.innerHTML = `<div class="imagegen-placeholder">❌ Generation failed.<br><small style="color:var(--muted)">Try a simpler prompt or try again.</small></div>`;
+  };
   img.src = url;
 }
 
@@ -3006,54 +3267,53 @@ function stopVoiceConv() {
 document.addEventListener('DOMContentLoaded', () => {
   const toolbar = document.getElementById('chatToolbar');
   if (toolbar) {
-    // Voice conv button
     const vcBtn = document.createElement('button');
     vcBtn.id = 'voiceConvBtn'; vcBtn.className = 'toolbar-btn';
     vcBtn.textContent = '🎙️ Voice Chat';
     vcBtn.onclick = toggleVoiceConv;
     toolbar.appendChild(vcBtn);
-    // Export PDF
     const expBtn = document.createElement('button');
     expBtn.className = 'toolbar-btn'; expBtn.textContent = '📄 Export PDF';
     expBtn.onclick = exportChatPDF;
     toolbar.appendChild(expBtn);
-    // Photo editor
     const peBtn = document.createElement('button');
     peBtn.className = 'toolbar-btn'; peBtn.textContent = '🖼️ Edit photo';
     peBtn.onclick = () => openPhotoEditor(null);
     toolbar.appendChild(peBtn);
+    const ceBtn = document.createElement('button');
+    ceBtn.className = 'toolbar-btn'; ceBtn.textContent = '✏️ Code Editor';
+    ceBtn.onclick = () => openCodeEditor();
+    toolbar.appendChild(ceBtn);
   }
   renderFolderList();
   initReminders();
+  updatePersonaBar();
+  showCodeQuickBtns(activePersonaId);
 });
 
-// ── PATCH handleReply FOR ARTIFACT DETECTION ─────────────────
-// Intercept addMsg for bot to detect canvas-worthy code
-const _origAddMsg = addMsg;
-function addMsg(role, html, isReplay) {
-  _origAddMsg(role, html, isReplay);
-  if (role === 'bot' && !isReplay && typeof html === 'string') {
-    const artifactBtn = detectAndRenderArtifact(html);
-    if (artifactBtn) {
-      const area = document.getElementById('chatArea');
-      const last = area?.lastElementChild;
-      if (last) {
-        const bubble = last.querySelector('.bubble');
-        if (bubble) {
-          const d = document.createElement('div');
-          d.innerHTML = artifactBtn;
-          bubble.appendChild(d.firstChild);
-        }
+// ── ARTIFACT + LANGUAGE DETECTION (safe - no addMsg patch) ───
+// Called directly from handleReply after adding bot message
+function postProcessBotMsg(html) {
+  // Artifact button
+  const artifactBtn = detectAndRenderArtifact(html);
+  if (artifactBtn) {
+    const area = document.getElementById('chatArea');
+    const last = area?.lastElementChild;
+    if (last) {
+      const bubble = last.querySelector('.bubble');
+      if (bubble) {
+        const d = document.createElement('div');
+        d.innerHTML = artifactBtn;
+        if (d.firstChild) bubble.appendChild(d.firstChild);
       }
     }
-    // Language detect indicator
-    const rawText = html.replace(/<[^>]+>/g,'');
-    const lang = detectLang(rawText);
-    if (lang) {
-      const dot = document.getElementById('statusDot');
-      const txt = document.getElementById('statusText');
-      if (dot && txt) { txt.textContent = lang; setTimeout(() => txt.textContent = 'Ready', 3000); }
-    }
+  }
+  // Language indicator
+  const rawText = html.replace(/<[^>]+>/g, '');
+  const lang = detectLang(rawText);
+  if (lang) {
+    const txt = document.getElementById('statusText');
+    if (txt) { txt.textContent = lang; setTimeout(() => { if (txt.textContent === lang) txt.textContent = 'Ready'; }, 3000); }
   }
 }
 
@@ -3373,14 +3633,25 @@ document.addEventListener('DOMContentLoaded', () => {
       <h3 id="artifactTitle">Artifact</h3>
       <div class="artifact-tabs">
         <button class="artifact-tab active" id="tabPreview" onclick="switchArtifactTab('preview')">Preview</button>
-        <button class="artifact-tab" id="tabCode" onclick="switchArtifactTab('code')">Code</button>
+        <button class="artifact-tab" id="tabCode" onclick="switchArtifactTab('code')">Edit Code</button>
       </div>
       <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="copyArtifactCode()" title="Copy code">📋</button>
       <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="downloadArtifact()" title="Download">⬇️</button>
       <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="closeArtifact()">✕</button>
     </div>
-    <iframe class="artifact-frame" id="artifactFrame" sandbox="allow-scripts allow-same-origin"></iframe>
-    <pre class="artifact-code" id="artifactCodeView" style="display:none"></pre>
+    <iframe class="artifact-frame" id="artifactFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    <textarea class="artifact-code-editor" id="artifactCodeEditor" style="display:none" spellcheck="false" oninput="onCodeEditorInput(this)"></textarea>
+    <div class="artifact-run-bar" id="artifactRunBar" style="display:none">
+      <select id="artifactLangSelect" onchange="updateArtifactLang()">
+        <option value="html">HTML</option>
+        <option value="js">JavaScript</option>
+        <option value="css">CSS (preview in HTML)</option>
+      </select>
+      <button class="toolbar-btn" onclick="runEditedCode()" style="border-color:var(--accent2);color:var(--accent2)">▶ Run</button>
+      <button class="toolbar-btn" onclick="aiImproveCode()">✨ AI Improve</button>
+      <button class="toolbar-btn" onclick="switchArtifactTab('preview')">👁 Preview</button>
+      <span id="artifactRunStatus" style="font-size:.72rem;color:var(--muted);margin-left:auto"></span>
+    </div>
   </div>
 </div>
 
