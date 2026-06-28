@@ -1,0 +1,25 @@
+{
+  "name": "WolfAI",
+  "short_name": "WolfAI",
+  "description": "Your Personal AI Assistant by Wolfixe",
+  "start_url": "/Wolf-AI/",
+  "scope": "/Wolf-AI/",
+  "display": "standalone",
+  "background_color": "#07070f",
+  "theme_color": "#6c5ce7",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/Wolf-AI/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Wolf-AI/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
