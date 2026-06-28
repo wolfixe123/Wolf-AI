@@ -750,6 +750,32 @@ function buildSystemPrompt() {
     else if (role === 'moderator') prompt += `\nThis person is a moderator of WolfAI, trusted by wolfixe. You can acknowledge this naturally if it comes up.`;
   }
   if (mems.length) prompt += `\n\nThings this user has asked you to remember:\n` + mems.map(m=>`- ${m}`).join('\n');
+  // Persona injection (safe — reads from localStorage, no function chain)
+  const personaId = localStorage.getItem('wolfai_persona') || 'default';
+  if (personaId === 'custom') {
+    const custom = localStorage.getItem('wolfai_custom_persona');
+    if (custom) prompt += `\n\nPersona: ${custom}`;
+  } else {
+    const PERSONA_PROMPTS = {
+      teacher: 'You are a patient, encouraging teacher. Explain things step by step with examples. Use simple language and check for understanding.',
+      coder: 'You are a senior software engineer. Give concise, practical code answers. Always use code blocks. Point out potential bugs or improvements.',
+      friend: 'You are a fun, casual best friend. Use informal language, be supportive, use emojis sometimes, and keep things light and entertaining.',
+      researcher: 'You are a thorough researcher. Provide detailed, well-structured answers with multiple perspectives. Cite reasoning. Be comprehensive.',
+      creative: 'You are a creative writer and thinker. Use vivid language, metaphors, and imaginative ideas. Think outside the box and inspire creativity.',
+      coach: 'You are an energetic life coach. Be motivating, action-oriented, and positive. Help break down goals into steps and celebrate progress.',
+      sinhala: 'Always reply in Sinhala (සිංහල), no matter what language the user writes in. Be warm and friendly.',
+    };
+    if (PERSONA_PROMPTS[personaId]) prompt += `\n\nPersona: ${PERSONA_PROMPTS[personaId]}`;
+  }
+  // Active project instruction
+  const activeProjectId = localStorage.getItem('wolfai_active_project');
+  if (activeProjectId) {
+    try {
+      const projects = JSON.parse(localStorage.getItem('wolfai_projects') || '[]');
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (proj?.instruction) prompt += `\n\nProject context: ${proj.instruction}`;
+    } catch(e) {}
+  }
   return prompt;
 }
 
@@ -1358,22 +1384,39 @@ async function showRegisteredUsers() {
 function handleFileSelect(e) {
   const file = e.target.files[0];
   if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
   if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
     reader.onload = () => {
       pendingAttachment = { type:'image', mimeType:file.type, base64:reader.result.split(',')[1], name:file.name, previewUrl:reader.result };
       showAttachPreview(`🖼️ ${file.name}`);
     };
     reader.readAsDataURL(file);
-  } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-    const reader = new FileReader();
+  } else if (ext === 'txt' || file.type === 'text/plain') {
     reader.onload = () => {
       pendingAttachment = { type:'text', content:reader.result, name:file.name };
       showAttachPreview(`📄 ${file.name}`);
     };
     reader.readAsText(file);
+  } else if (ext === 'csv') {
+    reader.onload = () => {
+      pendingAttachment = { type:'text', text:`[CSV: ${file.name}]\n${reader.result.slice(0,8000)}`, name:file.name };
+      showAttachPreview(`📊 ${file.name}`);
+    };
+    reader.readAsText(file);
+  } else if (['pdf','docx','xlsx'].includes(ext)) {
+    reader.onload = () => {
+      const mimeMap = { pdf:'application/pdf', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+      pendingAttachment = { type:'document', mimeType:mimeMap[ext]||'application/octet-stream', base64:reader.result.split(',')[1], name:file.name };
+      showAttachPreview(`📄 ${file.name}`);
+    };
+    reader.readAsDataURL(file);
   } else {
-    alert('Only images and .txt files are supported right now.');
+    reader.onload = () => {
+      pendingAttachment = { type:'text', text:`[File: ${file.name}]\n${reader.result.slice(0,8000)}`, name:file.name };
+      showAttachPreview(`📎 ${file.name}`);
+    };
+    reader.readAsText(file);
   }
   e.target.value = '';
 }
@@ -2644,13 +2687,7 @@ function getProjectInstruction() {
 }
 
 // Inject project instruction into system prompt
-const _origBuildSystemPrompt = buildSystemPrompt;
-function buildSystemPrompt() {
-  const base = _origBuildSystemPrompt();
-  const persona = getPersonaPrompt();
-  const project = getProjectInstruction();
-  return base + (persona ? `\n\nPersona: ${persona}` : '') + project;
-}
+// buildSystemPrompt persona+project injection handled in original function below
 
 // Render folder list in sidebar
 function renderFolderList() {
@@ -2698,10 +2735,11 @@ function selectPersona(id, cardEl) {
   if (cardEl) cardEl.classList.add('selected');
   const p = PERSONAS.find(p => p.id === id);
   if (p) {
-    // Show feedback in status bar instead of switching away from panel
     const statusText = document.getElementById('statusText');
-    if (statusText) { statusText.textContent = `${p.emoji} ${p.name} active`; setTimeout(() => statusText.textContent = 'Ready', 2500); }
+    if (statusText) { statusText.textContent = `${p.emoji} ${p.name} active`; setTimeout(() => { if(statusText.textContent===`${p.emoji} ${p.name} active`) statusText.textContent='Ready'; }, 2500); }
   }
+  updatePersonaBar();
+  showCodeQuickBtns(id);
 }
 function saveCustomPersona() {
   const val = document.getElementById('customPersonaInput')?.value?.trim(); if (!val) return;
@@ -2792,14 +2830,7 @@ function updatePersonaBar() {
   txt.textContent = `Active persona: ${name}`;
 }
 
-// Patch selectPersona to update bar
-const _origSelectPersona = selectPersona;
-function selectPersona(id, cardEl) {
-  _origSelectPersona(id, cardEl);
-  updatePersonaBar();
-  showCodeQuickBtns(id);
-}
-
+// showCodeQuickBtns
 function showCodeQuickBtns(personaId) {
   const el = document.getElementById('codeQuickBtns');
   if (!el) return;
@@ -3047,41 +3078,7 @@ function showFileAnalysisPanel() {
   // Trigger file picker directly
   document.getElementById('fileInput').click();
 }
-// Patch handleFileSelect for richer file types
-const _origHandleFileSelect = handleFileSelect;
-async function handleFileSelect(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (['jpg','jpeg','png','gif','webp'].includes(ext) || ext === 'txt') {
-    return _origHandleFileSelect(e);
-  }
-  // Rich file types — read as text if possible
-  e.target.value = '';
-  const reader = new FileReader();
-  if (ext === 'csv') {
-    reader.onload = () => {
-      const text = reader.result.slice(0, 8000);
-      pendingAttachment = { type: 'text', text: `[CSV File: ${file.name}]\n${text}`, name: file.name };
-      showAttachPreview(`📊 ${file.name}`);
-    };
-    reader.readAsText(file);
-  } else if (ext === 'pdf' || ext === 'docx' || ext === 'xlsx') {
-    // For PDF/DOCX/XLSX we send as base64 document to Gemini vision
-    reader.onload = () => {
-      const base64 = reader.result.split(',')[1];
-      const mimeMap = { pdf:'application/pdf', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
-      pendingAttachment = { type: 'document', mimeType: mimeMap[ext] || 'application/octet-stream', base64, name: file.name };
-      showAttachPreview(`📄 ${file.name}`);
-    };
-    reader.readAsDataURL(file);
-  } else {
-    reader.onload = () => {
-      pendingAttachment = { type: 'text', text: `[File: ${file.name}]\n${reader.result.slice(0,8000)}`, name: file.name };
-      showAttachPreview(`📎 ${file.name}`);
-    };
-    reader.readAsText(file);
-  }
-}
+// File analysis handled in handleFileSelect above
 
 // ── REMINDERS ─────────────────────────────────────────────────
 let reminders = JSON.parse(localStorage.getItem('wolfai_reminders') || '[]');
