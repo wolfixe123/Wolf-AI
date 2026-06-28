@@ -10,9 +10,10 @@
 <meta name="application-name" content="WolfAI">
 <meta name="theme-color" content="#6c5ce7">
 <meta name="description" content="WolfAI — Your Personal AI Assistant by Wolfixe">
-<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;WolfAI&quot;,&quot;short_name&quot;:&quot;WolfAI&quot;,&quot;description&quot;:&quot;Your Personal AI Assistant&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%2307070f&quot;,&quot;theme_color&quot;:&quot;%236c5ce7&quot;,&quot;orientation&quot;:&quot;any&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%236c5ce7'/%3E%3Ctext x='256' y='340' font-size='300' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3EW%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;any&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
-<!-- Apple touch icon inline SVG -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%236c5ce7'/%3E%3Ctext x='256' y='340' font-size='300' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3EW%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>WolfAI</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -350,6 +351,18 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 .artifact-tab{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.74rem;cursor:pointer;font-family:'Inter',sans-serif}
 .artifact-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .artifact-frame{flex:1;border:none;background:#fff}
+.nav-section-label{font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.08em;padding:8px 16px 3px;text-transform:uppercase}
+.nav-more-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:.8rem;cursor:pointer;color:var(--muted);border-radius:0}
+.nav-more-btn:hover{background:var(--card);color:var(--text)}
+.nav-more-arrow{margin-left:auto;font-size:1rem;transition:transform .2s;display:inline-block}
+.nav-more-arrow.open{transform:rotate(90deg)}
+.nav-more-section{display:none;overflow:hidden}
+.nav-more-section.open{display:block}
+.install-tab{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.75rem;cursor:pointer;font-family:Inter,sans-serif;transition:.15s}
+.install-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.install-steps{display:flex;flex-direction:column;gap:10px}
+.install-step{display:flex;align-items:flex-start;gap:12px;font-size:.82rem;line-height:1.5}
+.step-num{width:22px;height:22px;min-width:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
 /* PWA INSTALL BUTTON */
 .pwa-install-btn{position:fixed;bottom:90px;right:16px;z-index:200;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;padding:10px 18px;font-size:.82rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(108,92,231,.5);font-family:'Inter',sans-serif;animation:popIn .3s ease}
 .pwa-install-btn.show{display:flex}
@@ -452,26 +465,9 @@ body.mode-mobile .mobile-backdrop.show{display:block}
     <div id="folderList" style="padding:0 8px 4px"></div>
     <div class="chat-list" id="chatList"></div>
     <div class="sidebar-divider"></div>
-    <div class="nav-item" onclick="showProjectsPanel()">
-      <span>📁</span>
-      <div class="nav-label"><b>Projects</b></div>
-    </div>
-    <div class="nav-item" onclick="showPersonaPanel()">
-      <span>🎭</span>
-      <div class="nav-label"><b>AI Personas</b></div>
-    </div>
-    <div class="nav-item" onclick="showResearchPanel()">
-      <span>🔬</span>
-      <div class="nav-label"><b>Deep Research</b></div>
-    </div>
-    <div class="nav-item" onclick="showImageGenPanel()">
-      <span>🖼️</span>
-      <div class="nav-label"><b>Image Gen</b></div>
-    </div>
-    <div class="nav-item" onclick="showRemindersPanel()">
-      <span>⏰</span>
-      <div class="nav-label"><b>Reminders</b></div>
-    </div>
+
+    <!-- MAIN NAV -->
+    <div class="nav-section-label">CHAT</div>
     <div class="nav-item" onclick="showGlobalChat()">
       <span style="position:relative">🌐<span class="notif-badge" id="gchatNotifBadge"></span></span>
       <div class="nav-label"><b>Global Chat</b></div>
@@ -480,10 +476,41 @@ body.mode-mobile .mobile-backdrop.show{display:block}
       <span>🛠️</span>
       <div class="nav-label"><b>Tools</b></div>
     </div>
-    <div class="nav-item" onclick="openContactModal()">
-      <span>💬</span>
-      <div class="nav-label"><b>Contact us</b></div>
+    <div class="nav-item" id="navInstallBtn" onclick="showInstallGuide()">
+      <span>📲</span>
+      <div class="nav-label"><b>Install App</b></div>
     </div>
+
+    <!-- MORE (collapsible) -->
+    <div class="nav-more-btn" id="navMoreBtn" onclick="toggleNavMore()">
+      <span>•••</span>
+      <div class="nav-label"><b>More</b></div>
+      <span class="nav-more-arrow" id="navMoreArrow">›</span>
+    </div>
+    <div class="nav-more-section" id="navMoreSection">
+      <div class="nav-section-label" style="padding-left:20px">AI FEATURES</div>
+      <div class="nav-item" onclick="showPersonaPanel()">
+        <span>🎭</span><div class="nav-label"><b>AI Personas</b></div>
+      </div>
+      <div class="nav-item" onclick="showResearchPanel()">
+        <span>🔬</span><div class="nav-label"><b>Deep Research</b></div>
+      </div>
+      <div class="nav-item" onclick="showImageGenPanel()">
+        <span>🖼️</span><div class="nav-label"><b>Image Gen</b></div>
+      </div>
+      <div class="nav-section-label" style="padding-left:20px;margin-top:4px">ORGANIZE</div>
+      <div class="nav-item" onclick="showProjectsPanel()">
+        <span>📁</span><div class="nav-label"><b>Projects</b></div>
+      </div>
+      <div class="nav-item" onclick="showRemindersPanel()">
+        <span>⏰</span><div class="nav-label"><b>Reminders</b></div>
+      </div>
+      <div class="nav-section-label" style="padding-left:20px;margin-top:4px">OTHER</div>
+      <div class="nav-item" onclick="openContactModal()">
+        <span>💬</span><div class="nav-label"><b>Contact us</b></div>
+      </div>
+    </div>
+
     <div id="modNavSlot"></div>
     <div class="user-row" id="userRow"></div>
   </aside>
@@ -3675,17 +3702,72 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 </div>
 
-<!-- PWA INSTALL BUTTON -->
-<button class="pwa-install-btn" id="pwaInstallBtn" onclick="installPWA()">📲 Install WolfAI App</button>
+<!-- INSTALL GUIDE MODAL -->
+<div class="modal-overlay" id="installGuideModal" onclick="if(event.target===this)closeInstallGuide()" style="display:none">
+  <div class="modal-box" style="max-width:420px;padding:0;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#6c5ce7,#00cec9);padding:24px 20px 18px;text-align:center">
+      <div style="width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 10px">W</div>
+      <h2 style="color:#fff;font-size:1.1rem;margin-bottom:4px">Install WolfAI</h2>
+      <p style="color:rgba(255,255,255,.8);font-size:.78rem">Add to your device — no app store needed!</p>
+    </div>
+    <div style="padding:20px">
+      <div id="autoInstallSection" style="display:none;margin-bottom:16px">
+        <button onclick="triggerAutoInstall()" style="width:100%;padding:13px;background:linear-gradient(135deg,#6c5ce7,#00cec9);border:none;border-radius:12px;color:#fff;font-size:.92rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;font-family:Inter,sans-serif">
+          <span style="font-size:1.2rem">📲</span> Install WolfAI Now
+        </button>
+        <p style="text-align:center;color:var(--muted);font-size:.72rem;margin-top:8px">One click install ✨</p>
+        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <button class="install-tab active" id="tabAndroid" onclick="switchInstallTab('android')">📱 Android</button>
+        <button class="install-tab" id="tabIos" onclick="switchInstallTab('ios')">🍎 iPhone</button>
+        <button class="install-tab" id="tabDesktop" onclick="switchInstallTab('desktop')">💻 PC/Mac</button>
+      </div>
+      <div id="installAndroid" class="install-steps">
+        <div class="install-step"><span class="step-num">1</span><span>Chrome ෙකේ site open කරන්න</span></div>
+        <div class="install-step"><span class="step-num">2</span><span>Top right <b>⋮ menu</b> tap කරන්න</span></div>
+        <div class="install-step"><span class="step-num">3</span><span><b>"Add to Home Screen"</b> හෝ <b>"Install app"</b> tap</span></div>
+        <div class="install-step"><span class="step-num">4</span><span><b>Install</b> confirm — Home screen ෙකේ icon! 🎉</span></div>
+      </div>
+      <div id="installIos" class="install-steps" style="display:none">
+        <div class="install-step"><span class="step-num">1</span><span><b>Safari</b> ෙකේ site open කරන්න</span></div>
+        <div class="install-step"><span class="step-num">2</span><span>Bottom <b>Share ⬆️</b> button tap</span></div>
+        <div class="install-step"><span class="step-num">3</span><span><b>"Add to Home Screen"</b> tap</span></div>
+        <div class="install-step"><span class="step-num">4</span><span>Top right <b>Add</b> tap — Done! 🎉</span></div>
+        <div style="background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.2);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:.74rem;color:var(--muted)">⚠️ Safari ෙකේ විතරයි work කරන්නේ (Chrome/Firefox ෙකේ iOS ෙකේ නෑ)</div>
+      </div>
+      <div id="installDesktop" class="install-steps" style="display:none">
+        <div class="install-step"><span class="step-num">1</span><span>Chrome/Edge ෙකේ site open කරන්න</span></div>
+        <div class="install-step"><span class="step-num">2</span><span>Address bar right side ෙකේ <b>➕ icon</b> click</span></div>
+        <div class="install-step"><span class="step-num">3</span><span>නැත්නම් menu → <b>"Install WolfAI"</b></span></div>
+        <div class="install-step"><span class="step-num">4</span><span>Desktop/Taskbar ෙකේ app icon appear! 🎉</span></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button onclick="copyInstallLink()" style="flex:1;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif">🔗 Copy Link</button>
+        <button onclick="closeInstallGuide()" style="flex:1;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="pwa-toast" id="pwaToast"></div>
 
 <script>
-// ── PWA ──────────────────────────────────────────────────────
+// ── NAV MORE TOGGLE ───────────────────────────────────────────
+function toggleNavMore() {
+  const sec = document.getElementById('navMoreSection');
+  const arr = document.getElementById('navMoreArrow');
+  const open = sec.classList.toggle('open');
+  arr.classList.toggle('open', open);
+}
+
+// ── PWA + INSTALL GUIDE ──────────────────────────────────────
 let deferredInstallPrompt = null;
 
-// Inline Service Worker for installability
 if ('serviceWorker' in navigator) {
-  const swCode = `
+  navigator.serviceWorker.register('/Wolf-AI/sw.js', { scope: '/Wolf-AI/' })
+    .catch(() => {
+      // Fallback inline SW for local file usage
+      const swCode = `
 const CACHE='wolfai-v1';
 self.addEventListener('install',e=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
@@ -3693,48 +3775,87 @@ self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
   e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
 });`;
-  const blob = new Blob([swCode],{type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(blob),{scope:'/'})
-    .catch(()=>{});
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: '/' }).catch(() => {});
+    });
 }
 
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  document.getElementById('pwaInstallBtn').classList.add('show');
 });
 
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
-  document.getElementById('pwaInstallBtn').classList.remove('show');
-  showPwaToast('✅ WolfAI installed! Home screen ෙකේ open කරගන්න.');
+  showPwaToast('✅ WolfAI installed! Home screen ෙකේ open කරගන්න. 🎉');
 });
 
-async function installPWA() {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    if (outcome === 'accepted') document.getElementById('pwaInstallBtn').classList.remove('show');
-    deferredInstallPrompt = null;
-  } else {
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isAndroid = /android/i.test(navigator.userAgent);
-    if (isIOS) showPwaToast('📱 Safari ෙකේ Share (⬆️) → "Add to Home Screen" tap කරන්න.');
-    else if (isAndroid) showPwaToast('📱 Chrome menu (⋮) → "Add to Home Screen" tap කරන්න.');
-    else showPwaToast('💻 Address bar ෙකේ ➕ icon click කරන්න, නැත්නම් menu → "Install WolfAI".');
+function showInstallGuide() {
+  const modal = document.getElementById('installGuideModal');
+  modal.style.display = 'flex';
+  // Auto-detect device and switch tab
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  if (isIOS) switchInstallTab('ios');
+  else if (!isAndroid) switchInstallTab('desktop');
+  else switchInstallTab('android');
+  // Show one-click install if available
+  const autoSection = document.getElementById('autoInstallSection');
+  if (autoSection) autoSection.style.display = deferredInstallPrompt ? 'block' : 'none';
+  // Auto-download the HTML file
+  autoDownloadApp();
+}
+
+function autoDownloadApp() {
+  try {
+    const html = document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'WolfAI.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  } catch(e) {}
+}
+
+function closeInstallGuide() {
+  document.getElementById('installGuideModal').style.display = 'none';
+}
+
+function switchInstallTab(tab) {
+  ['android','ios','desktop'].forEach(t => {
+    const el = document.getElementById('install' + t.charAt(0).toUpperCase() + t.slice(1));
+    const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.style.display = t === tab ? 'flex' : 'none';
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  if (document.getElementById('installAndroid')) document.getElementById('installAndroid').style.display = tab === 'android' ? 'flex' : 'none';
+}
+
+async function triggerAutoInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') {
+    closeInstallGuide();
+    showPwaToast('✅ Installing WolfAI…');
   }
+  deferredInstallPrompt = null;
+  document.getElementById('autoInstallSection').style.display = 'none';
+}
+
+function copyInstallLink() {
+  const link = 'https://wolfixe123.github.io/Wolf-AI/';
+  navigator.clipboard.writeText(link).then(() => showPwaToast('🔗 Link copied! Share it with friends.'));
 }
 
 function showPwaToast(msg) {
   const t = document.getElementById('pwaToast');
+  if (!t) return;
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 7000);
 }
-
-// Show install button after 4s if not already installed
-setTimeout(() => {
-  const isInstalled = window.matchMedia('(display-mode:standalone)').matches || navigator.standalone;
-  if (!isInstalled) document.getElementById('pwaInstallBtn').classList.add('show');
-}, 4000);
 </script>
 </body>
