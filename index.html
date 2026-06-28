@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WolfAI">
+<meta name="application-name" content="WolfAI">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="description" content="WolfAI — Your Personal AI Assistant by Wolfixe">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;WolfAI&quot;,&quot;short_name&quot;:&quot;WolfAI&quot;,&quot;description&quot;:&quot;Your Personal AI Assistant&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%2307070f&quot;,&quot;theme_color&quot;:&quot;%236c5ce7&quot;,&quot;orientation&quot;:&quot;any&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%236c5ce7'/%3E%3Ctext x='256' y='340' font-size='300' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3EW%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;any&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+<!-- Apple touch icon inline SVG -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%236c5ce7'/%3E%3Ctext x='256' y='340' font-size='300' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3EW%3C/text%3E%3C/svg%3E">
 <title>WolfAI</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -340,6 +350,13 @@ body.mode-mobile .mobile-backdrop.show{display:block}
 .artifact-tab{padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.74rem;cursor:pointer;font-family:'Inter',sans-serif}
 .artifact-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .artifact-frame{flex:1;border:none;background:#fff}
+/* PWA INSTALL BUTTON */
+.pwa-install-btn{position:fixed;bottom:90px;right:16px;z-index:200;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;padding:10px 18px;font-size:.82rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(108,92,231,.5);font-family:'Inter',sans-serif;animation:popIn .3s ease}
+.pwa-install-btn.show{display:flex}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.pwa-install-btn:hover{transform:scale(1.05)}
+.pwa-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:12px 20px;font-size:.82rem;color:var(--text);display:none;z-index:201;box-shadow:0 4px 20px rgba(0,0,0,.4);text-align:center;max-width:320px;line-height:1.5}
+.pwa-toast.show{display:block}
 /* PANEL OVERLAY (slides over chat, doesn't replace it) */
 .panel-overlay{position:fixed;inset:0;z-index:55;display:none;align-items:stretch}
 .panel-overlay.active{display:flex}
@@ -3657,4 +3674,67 @@ document.addEventListener('DOMContentLoaded', () => {
     <button class="photo-tool-btn" onclick="sendEditedToChat()">💬 Send to chat</button>
   </div>
 </div>
+
+<!-- PWA INSTALL BUTTON -->
+<button class="pwa-install-btn" id="pwaInstallBtn" onclick="installPWA()">📲 Install WolfAI App</button>
+<div class="pwa-toast" id="pwaToast"></div>
+
+<script>
+// ── PWA ──────────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+
+// Inline Service Worker for installability
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE='wolfai-v1';
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+});`;
+  const blob = new Blob([swCode],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob),{scope:'/'})
+    .catch(()=>{});
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('pwaInstallBtn').classList.add('show');
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  document.getElementById('pwaInstallBtn').classList.remove('show');
+  showPwaToast('✅ WolfAI installed! Home screen ෙකේ open කරගන්න.');
+});
+
+async function installPWA() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') document.getElementById('pwaInstallBtn').classList.remove('show');
+    deferredInstallPrompt = null;
+  } else {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isAndroid = /android/i.test(navigator.userAgent);
+    if (isIOS) showPwaToast('📱 Safari ෙකේ Share (⬆️) → "Add to Home Screen" tap කරන්න.');
+    else if (isAndroid) showPwaToast('📱 Chrome menu (⋮) → "Add to Home Screen" tap කරන්න.');
+    else showPwaToast('💻 Address bar ෙකේ ➕ icon click කරන්න, නැත්නම් menu → "Install WolfAI".');
+  }
+}
+
+function showPwaToast(msg) {
+  const t = document.getElementById('pwaToast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 7000);
+}
+
+// Show install button after 4s if not already installed
+setTimeout(() => {
+  const isInstalled = window.matchMedia('(display-mode:standalone)').matches || navigator.standalone;
+  if (!isInstalled) document.getElementById('pwaInstallBtn').classList.add('show');
+}, 4000);
+</script>
 </body>
