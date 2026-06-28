@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wolfai-v1';
+const CACHE_NAME = 'wolfai-v2';
 const ASSETS = [
   '/Wolf-AI/',
   '/Wolf-AI/index.html',
@@ -37,4 +37,10 @@ self.addEventListener('fetch', e => {
       return cached || network;
     })
   );
+});
+
+// Open app when notification clicked
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow('/Wolf-AI/'));
 });
